@@ -1,5 +1,6 @@
 {
-  "_readme": "Little Oddities trait configuration. Each value has a rarity tier and a weight (relative likelihood inside its pool). A token's overall Rarity equals the rarest trait it carries; every non-Common token gets exactly one 'signature' trait of its own tier, allocated in exact quotas. See docs/ARTWORK_GUIDE.md. v4: one signature character; rarity comes from traits.",
+  "_readme": "Little Oddities trait configuration (artist layer edition). Values match the artist's concept sheets; tiers are PROPOSED and can be changed by the founder. Each value needs artist layer files - see docs/ARTIST_LAYER_SPEC.md. A token's Rarity = its rarest trait; non-Common tokens get one 'signature' trait of their tier in exact quotas.",
+  "engine": "layered",
   "collection": {
     "name": "Little Oddities",
     "supply": 10000,
@@ -33,99 +34,76 @@
     "_readme": "Weight multiplier for extra (non-signature) traits that are rarer than Common but not rarer than the token tier.",
     "value": 0.35
   },
+  "layer_order": [
+    "background",
+    "special:back",
+    "accessory:back",
+    "clothing:back",
+    "species:back",
+    "species",
+    "pattern",
+    "color:overlay",
+    "clothing",
+    "mouth",
+    "eyes",
+    "accessory",
+    "headwear",
+    "special"
+  ],
+  "colorable": [
+    "species"
+  ],
   "categories": [
     {
       "key": "background",
       "label": "Background",
       "values": [
         {
-          "name": "Tangerine",
+          "name": "Forest",
           "tier": "Common",
           "weight": 10,
           "families": [
-            "orange"
-          ]
-        },
-        {
-          "name": "Bubblegum",
-          "tier": "Common",
-          "weight": 10,
-          "families": [
-            "pink"
-          ]
-        },
-        {
-          "name": "Seafoam",
-          "tier": "Common",
-          "weight": 10,
-          "families": [
-            "teal",
             "green"
           ]
         },
         {
-          "name": "Butter",
-          "tier": "Common",
-          "weight": 10,
-          "families": [
-            "yellow"
-          ]
-        },
-        {
-          "name": "Periwinkle",
+          "name": "Beach",
           "tier": "Common",
           "weight": 10,
           "families": [
             "blue",
-            "purple"
+            "beige"
           ]
         },
         {
-          "name": "Clay",
+          "name": "City",
           "tier": "Common",
           "weight": 10,
           "families": [
-            "orange",
-            "red"
-          ]
-        },
-        {
-          "name": "Sage",
-          "tier": "Common",
-          "weight": 10,
-          "families": [
-            "green"
-          ]
-        },
-        {
-          "name": "Slate",
-          "tier": "Common",
-          "weight": 10,
-          "families": [
-            "neutral",
+            "gray",
             "blue"
           ]
         },
         {
-          "name": "Duotone Dusk",
-          "tier": "Uncommon",
+          "name": "Pastel",
+          "tier": "Common",
+          "weight": 10,
+          "families": [
+            "pink",
+            "light"
+          ]
+        },
+        {
+          "name": "Desert",
+          "tier": "Common",
           "weight": 10,
           "families": [
             "orange",
-            "purple"
+            "beige"
           ]
         },
         {
-          "name": "Duotone Lagoon",
-          "tier": "Uncommon",
-          "weight": 10,
-          "families": [
-            "teal",
-            "blue"
-          ]
-        },
-        {
-          "name": "Duotone Peach",
+          "name": "Sunset",
           "tier": "Uncommon",
           "weight": 10,
           "families": [
@@ -134,300 +112,299 @@
           ]
         },
         {
-          "name": "Halftone Burst",
-          "tier": "Rare",
+          "name": "Snow",
+          "tier": "Uncommon",
           "weight": 10,
           "families": [
-            "yellow",
-            "orange"
-          ]
-        },
-        {
-          "name": "Comic Rays",
-          "tier": "Rare",
-          "weight": 10,
-          "families": [
+            "light",
             "blue"
           ]
         },
         {
-          "name": "Brick Wall",
+          "name": "Night",
           "tier": "Rare",
           "weight": 10,
-          "families": [
-            "red",
-            "orange"
-          ]
-        },
-        {
-          "name": "Holographic",
-          "tier": "Epic",
-          "weight": 10,
-          "families": [
-            "light"
-          ]
-        },
-        {
-          "name": "Gold Leaf",
-          "tier": "Legendary",
-          "weight": 10,
-          "families": [
-            "yellow"
-          ]
-        },
-        {
-          "name": "Cosmos",
-          "tier": "Legendary",
-          "weight": 10,
-          "families": [
-            "dark"
-          ]
-        }
-      ]
-    },
-    {
-      "key": "skin",
-      "label": "Skin",
-      "values": [
-        {
-          "name": "Moss",
-          "tier": "Common",
-          "weight": 10,
-          "color": "#8DB580",
-          "families": [
-            "green"
-          ]
-        },
-        {
-          "name": "Clay",
-          "tier": "Common",
-          "weight": 10,
-          "color": "#D98B6A",
-          "families": [
-            "orange"
-          ]
-        },
-        {
-          "name": "Slate",
-          "tier": "Common",
-          "weight": 10,
-          "color": "#8A93A6",
-          "families": [
-            "neutral"
-          ]
-        },
-        {
-          "name": "Sand",
-          "tier": "Common",
-          "weight": 10,
-          "color": "#E3C79A",
-          "families": [
-            "yellow"
-          ]
-        },
-        {
-          "name": "Lavender",
-          "tier": "Common",
-          "weight": 10,
-          "color": "#B8A2E3",
-          "families": [
-            "purple"
-          ]
-        },
-        {
-          "name": "Teal",
-          "tier": "Common",
-          "weight": 10,
-          "color": "#4FB8A8",
-          "families": [
-            "teal"
-          ]
-        },
-        {
-          "name": "Rose",
-          "tier": "Common",
-          "weight": 10,
-          "color": "#E58FA4",
-          "families": [
-            "pink"
-          ]
-        },
-        {
-          "name": "Sky",
-          "tier": "Common",
-          "weight": 10,
-          "color": "#8EC5F0",
-          "families": [
-            "blue"
-          ]
-        },
-        {
-          "name": "Mint",
-          "tier": "Uncommon",
-          "weight": 10,
-          "color": "#A8E6C4",
-          "families": [
-            "green",
-            "light"
-          ]
-        },
-        {
-          "name": "Coral",
-          "tier": "Uncommon",
-          "weight": 10,
-          "color": "#F2856D",
-          "families": [
-            "orange",
-            "red"
-          ]
-        },
-        {
-          "name": "Ash",
-          "tier": "Uncommon",
-          "weight": 10,
-          "color": "#C9C4BE",
-          "families": [
-            "neutral",
-            "light"
-          ]
-        },
-        {
-          "name": "Butter",
-          "tier": "Uncommon",
-          "weight": 10,
-          "color": "#F2DA7E",
-          "families": [
-            "yellow",
-            "light"
-          ]
-        },
-        {
-          "name": "Midnight",
-          "tier": "Rare",
-          "weight": 10,
-          "color": "#3D4A7A",
           "families": [
             "dark",
             "blue"
           ]
         },
         {
-          "name": "Zombie",
+          "name": "Rainbow",
           "tier": "Rare",
           "weight": 10,
-          "color": "#9BC27A",
+          "families": [
+            "multi"
+          ]
+        },
+        {
+          "name": "Space",
+          "tier": "Epic",
+          "weight": 10,
+          "families": [
+            "dark",
+            "purple"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "species",
+      "label": "Species",
+      "values": [
+        {
+          "name": "Fuzzy",
+          "tier": "Common",
+          "weight": 10
+        },
+        {
+          "name": "Slime",
+          "tier": "Common",
+          "weight": 10
+        },
+        {
+          "name": "Bear",
+          "tier": "Common",
+          "weight": 10
+        },
+        {
+          "name": "Cat",
+          "tier": "Common",
+          "weight": 10
+        },
+        {
+          "name": "Dog",
+          "tier": "Common",
+          "weight": 10
+        },
+        {
+          "name": "Bunny",
+          "tier": "Common",
+          "weight": 10
+        },
+        {
+          "name": "Plant",
+          "tier": "Uncommon",
+          "weight": 10
+        },
+        {
+          "name": "Bird",
+          "tier": "Uncommon",
+          "weight": 10
+        },
+        {
+          "name": "Fox",
+          "tier": "Uncommon",
+          "weight": 10
+        },
+        {
+          "name": "Bug",
+          "tier": "Uncommon",
+          "weight": 10
+        },
+        {
+          "name": "Axolotl",
+          "tier": "Uncommon",
+          "weight": 10
+        },
+        {
+          "name": "Mushroom",
+          "tier": "Rare",
+          "weight": 10
+        },
+        {
+          "name": "Rock",
+          "tier": "Rare",
+          "weight": 10
+        },
+        {
+          "name": "Reptile",
+          "tier": "Rare",
+          "weight": 10
+        },
+        {
+          "name": "Monster",
+          "tier": "Rare",
+          "weight": 10
+        },
+        {
+          "name": "Ghost",
+          "tier": "Epic",
+          "weight": 10
+        },
+        {
+          "name": "Robot",
+          "tier": "Epic",
+          "weight": 10
+        },
+        {
+          "name": "Alien",
+          "tier": "Legendary",
+          "weight": 10
+        }
+      ]
+    },
+    {
+      "key": "color",
+      "label": "Color",
+      "values": [
+        {
+          "name": "Blue",
+          "tier": "Common",
+          "weight": 10,
+          "hex": "#5BA8F5",
+          "families": [
+            "blue"
+          ]
+        },
+        {
+          "name": "Pink",
+          "tier": "Common",
+          "weight": 10,
+          "hex": "#F59AC5",
+          "families": [
+            "pink"
+          ]
+        },
+        {
+          "name": "Purple",
+          "tier": "Common",
+          "weight": 10,
+          "hex": "#A07BE8",
+          "families": [
+            "purple"
+          ]
+        },
+        {
+          "name": "Green",
+          "tier": "Common",
+          "weight": 10,
+          "hex": "#7CCB6A",
           "families": [
             "green"
           ]
         },
         {
-          "name": "Inkblot",
-          "tier": "Rare",
+          "name": "Yellow",
+          "tier": "Common",
           "weight": 10,
-          "color": "#4A4258",
-          "families": [
-            "dark"
-          ]
-        },
-        {
-          "name": "Chrome",
-          "tier": "Epic",
-          "weight": 10,
-          "color": "#C9CFDA",
-          "gradient": [
-            "#FFFFFF",
-            "#C2C9D6",
-            "#7D8597"
-          ],
-          "families": [
-            "neutral",
-            "light"
-          ]
-        },
-        {
-          "name": "Holo",
-          "tier": "Epic",
-          "weight": 10,
-          "color": "#D9D2FF",
-          "gradient": [
-            "#B5F3FF",
-            "#E3C6FF",
-            "#FFC9E8",
-            "#FFF1B8"
-          ],
-          "families": [
-            "light"
-          ]
-        },
-        {
-          "name": "Gold",
-          "tier": "Legendary",
-          "weight": 12,
-          "color": "#F2C14E",
-          "gradient": [
-            "#FFF1A8",
-            "#F2C14E",
-            "#B07A12"
-          ],
+          "hex": "#F6D45A",
           "families": [
             "yellow"
           ]
         },
         {
-          "name": "Cosmic",
-          "tier": "Legendary",
+          "name": "Orange",
+          "tier": "Common",
           "weight": 10,
-          "color": "#3B2A7A",
+          "hex": "#F5A04F",
+          "families": [
+            "orange"
+          ]
+        },
+        {
+          "name": "Teal",
+          "tier": "Common",
+          "weight": 10,
+          "hex": "#3FC1B0",
+          "families": [
+            "teal"
+          ]
+        },
+        {
+          "name": "Beige",
+          "tier": "Common",
+          "weight": 10,
+          "hex": "#E8D2B0",
+          "families": [
+            "beige",
+            "light"
+          ]
+        },
+        {
+          "name": "Red",
+          "tier": "Uncommon",
+          "weight": 10,
+          "hex": "#E8574F",
+          "families": [
+            "red"
+          ]
+        },
+        {
+          "name": "Mint",
+          "tier": "Uncommon",
+          "weight": 10,
+          "hex": "#A6E8C8",
+          "families": [
+            "green",
+            "light"
+          ]
+        },
+        {
+          "name": "Lavender",
+          "tier": "Uncommon",
+          "weight": 10,
+          "hex": "#C9B8F2",
+          "families": [
+            "purple",
+            "light"
+          ]
+        },
+        {
+          "name": "Brown",
+          "tier": "Uncommon",
+          "weight": 10,
+          "hex": "#9C6B4A",
+          "families": [
+            "brown"
+          ]
+        },
+        {
+          "name": "Gray",
+          "tier": "Rare",
+          "weight": 10,
+          "hex": "#9AA0AA",
+          "families": [
+            "gray"
+          ]
+        },
+        {
+          "name": "White",
+          "tier": "Rare",
+          "weight": 10,
+          "hex": "#F4F2EE",
+          "families": [
+            "light"
+          ]
+        },
+        {
+          "name": "Black",
+          "tier": "Epic",
+          "weight": 10,
+          "hex": "#2E2A36",
           "families": [
             "dark"
+          ]
+        },
+        {
+          "name": "Rainbow",
+          "tier": "Legendary",
+          "weight": 10,
+          "hex": "#FFFFFF",
+          "families": [
+            "multi"
           ]
         }
       ]
     },
     {
-      "key": "ears",
-      "label": "Ears",
+      "key": "pattern",
+      "label": "Pattern",
       "values": [
         {
-          "name": "Pointy",
-          "tier": "Common",
-          "weight": 14
-        },
-        {
-          "name": "Round",
-          "tier": "Common",
-          "weight": 10
-        },
-        {
-          "name": "Droopy",
-          "tier": "Common",
-          "weight": 10
-        },
-        {
-          "name": "Notched",
-          "tier": "Uncommon",
-          "weight": 10
-        },
-        {
-          "name": "Fins",
-          "tier": "Rare",
-          "weight": 10
-        }
-      ]
-    },
-    {
-      "key": "markings",
-      "label": "Markings",
-      "values": [
-        {
-          "name": "None",
+          "name": "Solid",
           "tier": "Common",
           "weight": 40
-        },
-        {
-          "name": "Freckles",
-          "tier": "Common",
-          "weight": 12
         },
         {
           "name": "Spots",
@@ -435,33 +412,180 @@
           "weight": 10
         },
         {
-          "name": "Cheek Stripes",
+          "name": "Stripes",
+          "tier": "Common",
+          "weight": 10
+        },
+        {
+          "name": "Swirls",
           "tier": "Uncommon",
           "weight": 10
         },
         {
-          "name": "Star Tattoo",
+          "name": "Checks",
           "tier": "Uncommon",
           "weight": 10
         },
         {
-          "name": "Scar",
+          "name": "Leaves",
+          "tier": "Uncommon",
+          "weight": 10
+        },
+        {
+          "name": "Stars",
           "tier": "Rare",
           "weight": 10
         },
         {
-          "name": "Face Paint",
+          "name": "Camouflage",
           "tier": "Rare",
           "weight": 10
         },
         {
-          "name": "Stitches",
+          "name": "Geo",
+          "tier": "Rare",
+          "weight": 10
+        },
+        {
+          "name": "Tie-dye",
+          "tier": "Epic",
+          "weight": 10
+        },
+        {
+          "name": "Hearts",
+          "tier": "Epic",
+          "weight": 8
+        },
+        {
+          "name": "Flames",
+          "tier": "Legendary",
+          "weight": 10
+        }
+      ]
+    },
+    {
+      "key": "eyes",
+      "label": "Eyes",
+      "values": [
+        {
+          "name": "Normal",
+          "tier": "Common",
+          "weight": 14
+        },
+        {
+          "name": "Sleepy",
+          "tier": "Common",
+          "weight": 12
+        },
+        {
+          "name": "Bored",
+          "tier": "Common",
+          "weight": 12
+        },
+        {
+          "name": "Side-Eye",
+          "tier": "Common",
+          "weight": 10
+        },
+        {
+          "name": "Wink",
+          "tier": "Common",
+          "weight": 8
+        },
+        {
+          "name": "Angry",
+          "tier": "Uncommon",
+          "weight": 10
+        },
+        {
+          "name": "Teary",
+          "tier": "Uncommon",
+          "weight": 10
+        },
+        {
+          "name": "Spiral",
+          "tier": "Uncommon",
+          "weight": 8
+        },
+        {
+          "name": "X Eyes",
+          "tier": "Rare",
+          "weight": 10
+        },
+        {
+          "name": "Heart",
           "tier": "Rare",
           "weight": 8
         },
         {
-          "name": "Glow Runes",
+          "name": "Star",
           "tier": "Epic",
+          "weight": 10
+        },
+        {
+          "name": "Goggles",
+          "tier": "Epic",
+          "weight": 8
+        },
+        {
+          "name": "Galaxy",
+          "tier": "Legendary",
+          "weight": 10
+        }
+      ]
+    },
+    {
+      "key": "mouth",
+      "label": "Mouth",
+      "values": [
+        {
+          "name": "Smile",
+          "tier": "Common",
+          "weight": 14
+        },
+        {
+          "name": "Grin",
+          "tier": "Common",
+          "weight": 12
+        },
+        {
+          "name": "Sad",
+          "tier": "Common",
+          "weight": 8
+        },
+        {
+          "name": "Open",
+          "tier": "Common",
+          "weight": 10
+        },
+        {
+          "name": "Tongue",
+          "tier": "Uncommon",
+          "weight": 10
+        },
+        {
+          "name": "Surprised",
+          "tier": "Uncommon",
+          "weight": 10
+        },
+        {
+          "name": "Toothy",
+          "tier": "Uncommon",
+          "weight": 10
+        },
+        {
+          "name": "Fangs",
+          "tier": "Rare",
+          "weight": 10
+        },
+        {
+          "name": "Gold Tooth",
+          "tier": "Epic",
+          "weight": 10
+        },
+        {
+          "name": "Diamond Grin",
+          "tier": "Legendary",
           "weight": 10
         }
       ]
@@ -473,10 +597,10 @@
         {
           "name": "None",
           "tier": "Common",
-          "weight": 8
+          "weight": 14
         },
         {
-          "name": "Tee",
+          "name": "T-shirt",
           "tier": "Common",
           "weight": 12
         },
@@ -486,12 +610,22 @@
           "weight": 12
         },
         {
-          "name": "Turtleneck",
+          "name": "Sweater",
           "tier": "Common",
           "weight": 10
         },
         {
-          "name": "Bomber Jacket",
+          "name": "Shirt",
+          "tier": "Common",
+          "weight": 10
+        },
+        {
+          "name": "Overalls",
+          "tier": "Uncommon",
+          "weight": 10
+        },
+        {
+          "name": "Jacket",
           "tier": "Uncommon",
           "weight": 10
         },
@@ -501,13 +635,18 @@
           "weight": 10
         },
         {
-          "name": "Puffer",
+          "name": "Raincoat",
           "tier": "Uncommon",
-          "weight": 10
+          "weight": 8
         },
         {
           "name": "Tracksuit",
           "tier": "Uncommon",
+          "weight": 8
+        },
+        {
+          "name": "Coat",
+          "tier": "Rare",
           "weight": 10
         },
         {
@@ -516,195 +655,27 @@
           "weight": 10
         },
         {
-          "name": "Leather Jacket",
+          "name": "Puffer Vest",
           "tier": "Rare",
-          "weight": 10
+          "weight": 8
         },
         {
           "name": "Suit",
           "tier": "Rare",
-          "weight": 10
+          "weight": 8
         },
         {
-          "name": "Space Suit",
+          "name": "Robe",
           "tier": "Epic",
           "weight": 10
         },
         {
-          "name": "Royal Cape",
-          "tier": "Legendary",
-          "weight": 10
-        }
-      ]
-    },
-    {
-      "key": "eyes",
-      "label": "Eyes",
-      "values": [
-        {
-          "name": "Bored",
-          "tier": "Common",
-          "weight": 14
-        },
-        {
-          "name": "Unimpressed",
-          "tier": "Common",
-          "weight": 12
-        },
-        {
-          "name": "Side-Eye",
-          "tier": "Common",
-          "weight": 12
-        },
-        {
-          "name": "Sleepy",
-          "tier": "Common",
-          "weight": 10
-        },
-        {
-          "name": "Focused",
-          "tier": "Common",
-          "weight": 10
-        },
-        {
-          "name": "Wide Awake",
-          "tier": "Uncommon",
-          "weight": 10
-        },
-        {
-          "name": "Angry",
-          "tier": "Uncommon",
-          "weight": 10
-        },
-        {
-          "name": "Wink",
-          "tier": "Uncommon",
-          "weight": 10
-        },
-        {
-          "name": "Cyclops",
-          "tier": "Rare",
-          "weight": 10
-        },
-        {
-          "name": "Hypno",
-          "tier": "Rare",
-          "weight": 10
-        },
-        {
-          "name": "Glowing",
+          "name": "Astronaut Suit",
           "tier": "Epic",
-          "weight": 10
-        },
-        {
-          "name": "Gold",
-          "tier": "Legendary",
-          "weight": 10
-        }
-      ]
-    },
-    {
-      "key": "eyewear",
-      "label": "Eyewear",
-      "values": [
-        {
-          "name": "None",
-          "tier": "Common",
-          "weight": 60
-        },
-        {
-          "name": "Round Specs",
-          "tier": "Uncommon",
-          "weight": 10
-        },
-        {
-          "name": "Shades",
-          "tier": "Uncommon",
-          "weight": 10
-        },
-        {
-          "name": "3D Glasses",
-          "tier": "Uncommon",
           "weight": 8
         },
         {
-          "name": "Aviators",
-          "tier": "Rare",
-          "weight": 10
-        },
-        {
-          "name": "Eyepatch",
-          "tier": "Rare",
-          "weight": 8
-        },
-        {
-          "name": "Monocle",
-          "tier": "Rare",
-          "weight": 8
-        },
-        {
-          "name": "Visor",
-          "tier": "Epic",
-          "weight": 10
-        }
-      ]
-    },
-    {
-      "key": "mouth",
-      "label": "Mouth",
-      "values": [
-        {
-          "name": "Flat",
-          "tier": "Common",
-          "weight": 12
-        },
-        {
-          "name": "Smirk",
-          "tier": "Common",
-          "weight": 14
-        },
-        {
-          "name": "Frown",
-          "tier": "Common",
-          "weight": 10
-        },
-        {
-          "name": "Smug Grin",
-          "tier": "Common",
-          "weight": 12
-        },
-        {
-          "name": "Toothpick",
-          "tier": "Uncommon",
-          "weight": 10
-        },
-        {
-          "name": "Bubblegum",
-          "tier": "Uncommon",
-          "weight": 10
-        },
-        {
-          "name": "Tongue Out",
-          "tier": "Uncommon",
-          "weight": 10
-        },
-        {
-          "name": "Fangs",
-          "tier": "Rare",
-          "weight": 10
-        },
-        {
-          "name": "Shout",
-          "tier": "Rare",
-          "weight": 8
-        },
-        {
-          "name": "Gold Grill",
-          "tier": "Epic",
-          "weight": 10
-        },
-        {
-          "name": "Diamond Grill",
+          "name": "Cape",
           "tier": "Legendary",
           "weight": 10
         }
@@ -717,46 +688,86 @@
         {
           "name": "None",
           "tier": "Common",
-          "weight": 45
+          "weight": 40
         },
         {
-          "name": "Stud Earring",
+          "name": "Bag",
           "tier": "Common",
           "weight": 10
         },
         {
-          "name": "Cheek Bandage",
+          "name": "Scarf",
           "tier": "Common",
-          "weight": 8
+          "weight": 10
         },
         {
-          "name": "Hoop Earring",
+          "name": "Glasses",
+          "tier": "Common",
+          "weight": 10
+        },
+        {
+          "name": "Bandage",
+          "tier": "Common",
+          "weight": 6
+        },
+        {
+          "name": "Backpack",
           "tier": "Uncommon",
           "weight": 10
         },
         {
-          "name": "Silver Chain",
+          "name": "Headphones",
           "tier": "Uncommon",
           "weight": 10
         },
         {
-          "name": "Nose Ring",
+          "name": "Drink",
           "tier": "Uncommon",
           "weight": 8
         },
         {
-          "name": "Headset Mic",
+          "name": "Flower",
+          "tier": "Uncommon",
+          "weight": 8
+        },
+        {
+          "name": "Watch",
           "tier": "Rare",
           "weight": 10
         },
         {
-          "name": "Sprout Pin",
+          "name": "Necklace",
           "tier": "Rare",
+          "weight": 10
+        },
+        {
+          "name": "Camera",
+          "tier": "Rare",
+          "weight": 8
+        },
+        {
+          "name": "Skateboard",
+          "tier": "Rare",
+          "weight": 8
+        },
+        {
+          "name": "Earring",
+          "tier": "Rare",
+          "weight": 6
+        },
+        {
+          "name": "Ring",
+          "tier": "Epic",
           "weight": 10
         },
         {
           "name": "Gold Chain",
           "tier": "Epic",
+          "weight": 8
+        },
+        {
+          "name": "Treasure Map",
+          "tier": "Legendary",
           "weight": 10
         }
       ]
@@ -776,47 +787,62 @@
           "weight": 10
         },
         {
-          "name": "Backwards Cap",
+          "name": "Cap",
           "tier": "Common",
           "weight": 10
         },
         {
-          "name": "Bucket Hat",
+          "name": "Bucket",
           "tier": "Common",
           "weight": 10
         },
         {
           "name": "Headband",
           "tier": "Common",
-          "weight": 8
+          "weight": 6
         },
         {
-          "name": "Bandana",
+          "name": "Hat",
           "tier": "Uncommon",
           "weight": 10
         },
         {
-          "name": "Headphones",
+          "name": "Hood",
           "tier": "Uncommon",
           "weight": 10
         },
         {
-          "name": "Beret",
+          "name": "Cowboy",
           "tier": "Uncommon",
           "weight": 8
         },
         {
-          "name": "Captain Hat",
+          "name": "Flower Crown",
+          "tier": "Uncommon",
+          "weight": 8
+        },
+        {
+          "name": "Helmet",
           "tier": "Rare",
           "weight": 10
         },
         {
-          "name": "Halo",
-          "tier": "Epic",
+          "name": "Wizard",
+          "tier": "Rare",
           "weight": 10
         },
         {
-          "name": "Horns",
+          "name": "Chef Hat",
+          "tier": "Rare",
+          "weight": 6
+        },
+        {
+          "name": "Pilot Cap",
+          "tier": "Rare",
+          "weight": 6
+        },
+        {
+          "name": "Space Helmet",
           "tier": "Epic",
           "weight": 10
         },
@@ -826,167 +852,258 @@
           "weight": 12
         }
       ]
+    },
+    {
+      "key": "special",
+      "label": "Special",
+      "values": [
+        {
+          "name": "None",
+          "tier": "Common",
+          "weight": 60
+        },
+        {
+          "name": "Antenna",
+          "tier": "Common",
+          "weight": 8
+        },
+        {
+          "name": "Sparkles",
+          "tier": "Common",
+          "weight": 8
+        },
+        {
+          "name": "Tail",
+          "tier": "Uncommon",
+          "weight": 10
+        },
+        {
+          "name": "Little Buddy",
+          "tier": "Uncommon",
+          "weight": 8
+        },
+        {
+          "name": "Rain Cloud",
+          "tier": "Uncommon",
+          "weight": 6
+        },
+        {
+          "name": "Horns",
+          "tier": "Rare",
+          "weight": 10
+        },
+        {
+          "name": "Third Eye",
+          "tier": "Rare",
+          "weight": 8
+        },
+        {
+          "name": "Wings",
+          "tier": "Epic",
+          "weight": 10
+        },
+        {
+          "name": "Fire Aura",
+          "tier": "Epic",
+          "weight": 8
+        },
+        {
+          "name": "Ice Aura",
+          "tier": "Epic",
+          "weight": 8
+        },
+        {
+          "name": "Glow",
+          "tier": "Legendary",
+          "weight": 8
+        },
+        {
+          "name": "Halo",
+          "tier": "Legendary",
+          "weight": 10
+        }
+      ]
     }
   ],
   "rules": [
     {
-      "_why": "Skin and background must not share a colour family (keeps every character readable).",
+      "_why": "Body colour and background must not share a colour family.",
       "type": "no_shared_family",
-      "a": "skin",
+      "a": "color",
       "b": "background"
     },
     {
-      "_why": "Eyewear is built for two eyes.",
+      "_why": "Horns and antennae poke through most hats.",
       "type": "exclude",
       "a": {
-        "eyes": [
-          "Cyclops"
+        "special": [
+          "Horns",
+          "Antenna",
+          "Halo"
         ]
       },
       "b": {
-        "eyewear": [
-          "Round Specs",
-          "Shades",
-          "3D Glasses",
-          "Aviators",
-          "Eyepatch",
-          "Monocle"
+        "headwear": [
+          "Antenna",
+          "Sparkles",
+          "Tail",
+          "Little Buddy",
+          "Rain Cloud",
+          "Horns",
+          "Third Eye",
+          "Wings",
+          "Fire Aura",
+          "Ice Aura",
+          "Glow",
+          "Halo"
         ]
       }
     },
     {
-      "_why": "Headphone cups sit where ears, earrings and the mic go.",
+      "_why": "Wings and cape/backpack occupy the same space behind the body.",
       "type": "exclude",
       "a": {
-        "headwear": [
-          "Headphones"
+        "special": [
+          "Wings"
+        ]
+      },
+      "b": {
+        "clothing": [
+          "Cape",
+          "Robe"
+        ]
+      }
+    },
+    {
+      "_why": "Backpack straps clash with capes and wings.",
+      "type": "exclude",
+      "a": {
+        "accessory": [
+          "Backpack"
+        ]
+      },
+      "b": {
+        "clothing": [
+          "Cape",
+          "Astronaut Suit"
+        ]
+      }
+    },
+    {
+      "_why": "Ghosts float: no skateboard, no tail.",
+      "type": "exclude",
+      "a": {
+        "species": [
+          "Ghost"
         ]
       },
       "b": {
         "accessory": [
-          "Stud Earring",
-          "Hoop Earring",
-          "Headset Mic"
+          "Skateboard"
         ]
       }
     },
     {
-      "_why": "Headphone cups clash with fin ears.",
+      "_why": "Ghosts float: no tail.",
       "type": "exclude",
       "a": {
-        "headwear": [
+        "species": [
+          "Ghost"
+        ]
+      },
+      "b": {
+        "special": [
+          "Tail"
+        ]
+      }
+    },
+    {
+      "_why": "Glasses can't sit over goggles or the space helmet visor.",
+      "type": "exclude",
+      "a": {
+        "accessory": [
+          "Glasses"
+        ]
+      },
+      "b": {
+        "eyes": [
+          "Goggles"
+        ]
+      }
+    },
+    {
+      "_why": "Glasses can't sit inside the space helmet.",
+      "type": "exclude",
+      "a": {
+        "accessory": [
+          "Glasses",
           "Headphones"
         ]
       },
       "b": {
-        "ears": [
-          "Fins"
+        "headwear": [
+          "Space Helmet",
+          "Helmet",
+          "Hood"
         ]
       }
     },
     {
-      "_why": "Cape clasp / space-suit ring replace neck jewellery and pins.",
+      "_why": "Headphones clash with hats that cover the ears.",
+      "type": "exclude",
+      "a": {
+        "accessory": [
+          "Headphones"
+        ]
+      },
+      "b": {
+        "headwear": [
+          "Beanie",
+          "Cowboy",
+          "Wizard",
+          "Chef Hat",
+          "Pilot Cap"
+        ]
+      }
+    },
+    {
+      "_why": "The astronaut suit goes with the space helmet or nothing.",
       "type": "exclude",
       "a": {
         "clothing": [
-          "Royal Cape",
-          "Space Suit"
+          "Astronaut Suit"
         ]
       },
       "b": {
-        "accessory": [
-          "Silver Chain",
-          "Gold Chain",
-          "Sprout Pin"
+        "headwear": [
+          "Beanie",
+          "Cap",
+          "Bucket",
+          "Hat",
+          "Hood",
+          "Cowboy",
+          "Wizard",
+          "Chef Hat",
+          "Pilot Cap",
+          "Flower Crown"
         ]
       }
     },
     {
-      "_why": "Bandage covers the right cheek.",
+      "_why": "Rainbow bodies already have a multicolour finish; patterns would fight it.",
       "type": "exclude",
       "a": {
-        "accessory": [
-          "Cheek Bandage"
+        "color": [
+          "Rainbow"
         ]
       },
       "b": {
-        "markings": [
-          "Cheek Stripes",
-          "Face Paint",
-          "Spots"
-        ]
-      }
-    },
-    {
-      "_why": "Shades/visor/3D glasses cover the eyes, so special eyes would be hidden.",
-      "type": "exclude",
-      "a": {
-        "eyewear": [
-          "Shades",
-          "Visor",
-          "3D Glasses",
-          "Eyepatch"
-        ]
-      },
-      "b": {
-        "eyes": [
-          "Glowing",
-          "Gold",
-          "Hypno",
-          "Wink"
-        ]
-      }
-    },
-    {
-      "_why": "Bubblegum covers the mouth area where the nose ring hangs.",
-      "type": "exclude",
-      "a": {
-        "mouth": [
-          "Bubblegum"
-        ]
-      },
-      "b": {
-        "accessory": [
-          "Nose Ring"
-        ]
-      }
-    },
-    {
-      "_why": "Dark skins need a lighter background.",
-      "type": "exclude",
-      "a": {
-        "skin": [
-          "Midnight",
-          "Inkblot",
-          "Cosmic"
-        ]
-      },
-      "b": {
-        "background": [
-          "Cosmos",
-          "Slate",
-          "Brick Wall"
-        ]
-      }
-    },
-    {
-      "_why": "Pale skins disappear on grey/blue-grey backgrounds.",
-      "type": "exclude",
-      "a": {
-        "skin": [
-          "Chrome",
-          "Holo",
-          "Mint",
-          "Ash",
-          "Zombie",
-          "Sky",
-          "Slate"
-        ]
-      },
-      "b": {
-        "background": [
-          "Slate",
-          "Periwinkle"
+        "pattern": [
+          "Tie-dye",
+          "Stripes",
+          "Checks",
+          "Geo",
+          "Camouflage"
         ]
       }
     }

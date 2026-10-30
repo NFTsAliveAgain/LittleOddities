@@ -24,7 +24,8 @@ from PIL import Image, ImageDraw, ImageFont
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from oddities.metadata import token_metadata  # noqa: E402
 from oddities.planner import load_config, plan_collection, statistics, verify_plan  # noqa: E402
-from oddities.render import render  # noqa: E402
+from oddities.layered import asset_status, render_layered  # noqa: E402
+from oddities.planner import CONFIG  # noqa: E402
 from oddities.validate import validate_folder  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent
@@ -49,9 +50,17 @@ def write_json(path: Path, data):
     path.write_text(json.dumps(data, indent=2, ensure_ascii=False))
 
 
+def render_token(traits, cfg, out_size=1024):
+    """Artist layers (default) or the archived procedural engine (config 'engine')."""
+    if cfg.get("engine") == "layered":
+        return render_layered(traits, cfg, out_size)
+    from oddities.render import render
+    return render(traits, cfg["value"][("skin", traits["skin"])], cfg["order"], out_size=out_size)
+
+
 def _render_one(args):
-    token, skin, order, out_dir = args
-    img, qa = render(token["traits"], skin, order)
+    token, cfg, out_dir = args
+    img, qa = render_token(token["traits"], cfg)
     img.save(Path(out_dir) / "images" / f"{token['id']}.png", optimize=True)
     return token["id"], qa
 
@@ -100,7 +109,7 @@ def cmd_samples(cfg, args):
     (out / "images").mkdir(parents=True, exist_ok=True)
     items, report = [], []
     for t in picks:
-        img, qa = render(t["traits"], cfg["value"][("skin", t["traits"]["skin"])], cfg["order"])
+        img, qa = render_token(t["traits"], cfg)
         img.save(out / "images" / f"{t['id']}.png", optimize=True)
         write_json(out / "metadata" / f"{t['id']}.json", token_metadata(t, cfg))
         items.append((img, f"#{t['id']} {t['name']}", f"{t['tier']}", t["tier"]))
@@ -116,7 +125,9 @@ REFERENCE = {"background": "Periwinkle", "skin": "Moss", "ears": "Pointy", "mark
 
 
 def cmd_catalog(cfg, args):
-    """One sheet per category showing every trait value on a reference character."""
+    """One sheet per category showing every trait value on a reference character (procedural engine)."""
+    if cfg.get("engine") == "layered":
+        sys.exit("Catalog sheets for artist layers come from the artist. Use --config config/procedural_traits.json for the code-drawn set.")
     out = OUT / "catalog"
     for c in cfg["categories"]:
         items = []
@@ -148,7 +159,9 @@ def cmd_collection(cfg, args):
     (out / "images").mkdir(parents=True, exist_ok=True)
     for t in tokens:
         write_json(out / "metadata" / f"{t['id']}.json", token_metadata(t, cfg))
-    jobs = [(t, cfg["value"][("skin", t["traits"]["skin"])], cfg["order"], str(out)) for t in tokens
+    if cfg.get("engine") == "layered" and asset_status(cfg)["missing"] and not args.allow_placeholders:
+        sys.exit("Artist layers are missing (run: python generate.py assets). Use --allow-placeholders only for TEST builds.")
+    jobs = [(t, cfg, str(out)) for t in tokens
             if args.force or not (out / "images" / f"{t['id']}.png").exists()]
     qa = {}
     t0 = time.time()
@@ -160,6 +173,16 @@ def cmd_collection(cfg, args):
     write_json(out / "qa_report.json", {str(k): v for k, v in sorted(qa.items())})
     write_json(out / "trait_statistics.json", statistics(tokens, cfg))
     print(f"Rendered {len(jobs)} images. QA flags: {sum(1 for q in qa.values() if not q['ok'])}")
+
+
+def cmd_assets(cfg, args):
+    st = asset_status(cfg)
+    write_json(OUT / "asset_status.json", st)
+    print(f"Artist layer files delivered: {st['delivered']} / {st['required']}")
+    for m in st["missing"][:40]:
+        print("  missing:", m)
+    if len(st["missing"]) > 40:
+        print(f"  ... and {len(st['missing']) - 40} more (full list in output/asset_status.json)")
 
 
 def cmd_validate(cfg, args):
@@ -177,17 +200,19 @@ def cmd_validate(cfg, args):
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("command", choices=["plan", "samples", "catalog", "collection", "validate"])
+    ap.add_argument("command", choices=["plan", "samples", "catalog", "collection", "validate", "assets"])
     ap.add_argument("--seed", type=int, default=None)
     ap.add_argument("--count", type=int, default=30)
     ap.add_argument("--workers", type=int, default=4)
     ap.add_argument("--approved-art", action="store_true")
     ap.add_argument("--force", action="store_true")
     ap.add_argument("--folder", default="collection")
+    ap.add_argument("--allow-placeholders", action="store_true", help="TEST builds only")
+    ap.add_argument("--config", default=str(CONFIG))
     args = ap.parse_args()
-    cfg = load_config()
+    cfg = load_config(args.config)
     {"plan": cmd_plan, "samples": cmd_samples, "catalog": cmd_catalog,
-     "collection": cmd_collection, "validate": cmd_validate}[args.command](cfg, args)
+     "collection": cmd_collection, "validate": cmd_validate, "assets": cmd_assets}[args.command](cfg, args)
 
 
 if __name__ == "__main__":
