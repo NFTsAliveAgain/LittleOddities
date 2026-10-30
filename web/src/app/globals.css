@@ -1,0 +1,41 @@
+@import "tailwindcss";
+
+/* NFTs Alive Again design tokens — see docs/BRAND_GUIDE.md */
+@theme {
+  --color-ink: #1e1a2e;
+  --color-night: #141a2e;
+  --color-cream: #fbf5ea;
+  --color-paper: #fffdf8;
+  --color-pink: #f59ac5;
+  --color-mint: #8ee3b0;
+  --color-lilac: #c9b8f2;
+  --color-sky: #7cc8ff;
+  --color-butter: #ffd86b;
+  --color-tomato: #ff6b4a;
+  --color-moss: #5dbb4a;
+  --color-common: #8a93a6;
+  --color-uncommon: #3fbf7f;
+  --color-rare: #3e8bff;
+  --color-epic: #a35cf0;
+  --color-legendary: #f2a516;
+  --font-display: var(--font-fraunces);
+  --font-sans: var(--font-dmsans);
+  --font-hand: var(--font-caveat);
+  --shadow-pop: 4px 4px 0 0 #1e1a2e;
+  --shadow-pop-lg: 6px 6px 0 0 #1e1a2e;
+}
+
+html { scroll-behavior: smooth; }
+body { background: var(--color-cream); color: var(--color-ink); font-family: var(--font-sans); }
+
+/* hand-made feel: chunky ink outlines + offset shadow, used on cards and buttons */
+.card { background: var(--color-paper); border: 3px solid var(--color-ink); border-radius: 1.25rem; box-shadow: var(--shadow-pop); }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: .5rem; border: 3px solid var(--color-ink);
+  border-radius: 999px; padding: .65rem 1.4rem; font-weight: 700; box-shadow: var(--shadow-pop); transition: transform .12s, box-shadow .12s; }
+.btn:hover:not(:disabled) { transform: translate(-2px, -2px); box-shadow: var(--shadow-pop-lg); }
+.btn:active:not(:disabled) { transform: translate(2px, 2px); box-shadow: 1px 1px 0 0 var(--color-ink); }
+.btn:disabled { opacity: .5; cursor: not-allowed; }
+.paper-grain { background-image: radial-gradient(rgba(30,26,46,.06) 1px, transparent 1px); background-size: 6px 6px; }
+.wobble { transform: rotate(-2deg); }
+.input { width: 100%; border: 2px solid var(--color-ink); border-radius: .75rem; padding: .55rem .8rem; background: white; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } .btn { transition: none; } }
