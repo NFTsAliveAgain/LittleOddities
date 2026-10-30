@@ -103,7 +103,7 @@ def cmd_samples(cfg, args):
         img, qa = render(t["traits"], cfg["value"][("skin", t["traits"]["skin"])], cfg["order"])
         img.save(out / "images" / f"{t['id']}.png", optimize=True)
         write_json(out / "metadata" / f"{t['id']}.json", token_metadata(t, cfg))
-        items.append((img, f"#{t['id']} {t['name']}", f"{t['tier']} {t['traits']['species']}", t["tier"]))
+        items.append((img, f"#{t['id']} {t['name']}", f"{t['tier']}", t["tier"]))
         report.append({"id": t["id"], "tier": t["tier"], "qa": qa})
         print(f"  #{t['id']:>5} {t['tier']:<9} {t['name']:<28} QA: {'ok' if qa['ok'] else qa['issues']}")
     contact_sheet(items, out / "sample_sheet.png", title="Little Oddities - Sample Characters (for approval)")
@@ -111,10 +111,8 @@ def cmd_samples(cfg, args):
     print(f"Wrote {len(picks)} samples to {out}")
 
 
-REFERENCE = {"species": "Beanling", "skin": "Teal", "pattern": "None", "eyes": "Classic", "mouth": "Smile",
-             "expression": "Content", "headwear": "None", "clothing": "None", "accessory": "None", "special": "None",
-             "background": "Cream Dots"}
-REF_OVERRIDES = {"background": {"skin": "Lilac"}}
+REFERENCE = {"background": "Periwinkle", "skin": "Moss", "ears": "Pointy", "markings": "None", "clothing": "Hoodie",
+             "eyes": "Bored", "eyewear": "None", "mouth": "Smirk", "accessory": "None", "headwear": "None"}
 
 
 def cmd_catalog(cfg, args):
@@ -125,16 +123,13 @@ def cmd_catalog(cfg, args):
         for v in c["values"]:
             traits = dict(REFERENCE)
             traits[c["key"]] = v["name"]
-            if c["key"] == "background" or (c["key"] == "skin" and v["name"] in ("Teal", "Sea Glass")):
-                traits["background"] = v["name"] if c["key"] == "background" else "Cream Dots"
             if c["key"] == "background":
                 fams = set(v.get("families", []))
-                for skin in ("Teal", "Bubblegum", "Mustard", "Sky"):
-                    if not fams & set(cfg["value"][("skin", skin)]["families"]):
-                        traits["skin"] = skin
-                        break
-            if c["key"] == "accessory" and v["name"] == "Monocle":
-                traits["eyes"] = "Classic"
+                traits["skin"] = next(k for k in ("Moss", "Rose", "Sand", "Sky") if not fams & set(cfg["value"][("skin", k)]["families"]))
+            if c["key"] == "skin" and set(v["families"]) & set(cfg["value"][("background", "Periwinkle")]["families"]):
+                traits["background"] = "Butter"
+            if c["key"] == "eyewear" and v["name"] != "None":
+                traits["eyes"] = "Unimpressed"
             img, qa = render(traits, cfg["value"][("skin", traits["skin"])], cfg["order"], size=1400, out_size=700)
             items.append((img, v["name"], v["tier"], v["tier"]))
         contact_sheet(items, out / f"{c['key']}.png", cols=6, cell=260, title=f"Trait catalog - {c['label']} ({len(items)})")

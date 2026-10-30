@@ -16,7 +16,7 @@ def token_metadata(token: dict, cfg: dict, images_cid: str = CID_PLACEHOLDER) ->
         attrs.append({"trait_type": c["label"], "value": token["traits"][c["key"]]})
     return {
         "name": f"Little Oddities #{token['id']}: {token['name']}",
-        "description": f"Meet {token['name']}, a {token['tier'].lower()} {token['traits']['species']} from Little Oddities, "
+        "description": f"Meet {token['name']}, a {token['tier'].lower()} Oddity from Little Oddities, "
                        f"the first collection from NFTs Alive Again. A World of Wonderfully Weird.",
         "image": f"ipfs://{images_cid}/{token['id']}.png",
         "external_url": f"{col['external_url_base']}{token['id']}",
