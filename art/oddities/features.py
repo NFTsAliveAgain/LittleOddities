@@ -18,15 +18,30 @@ def eye_metrics(ctx):
 
 
 # ---------------------------------------------------------------- eye parts
+IRIS = [hex_rgb("#7A4E2D")]
+
+
 def sclera(P, x, y, r, color=WHITE):
-    P.ellipse(x, y, r * 0.9, r, fill=color, outline=FO)
+    m = P.ellipse(x, y, r * 0.9, r, fill=color, outline=FO)
+    # lid shadow across the top of the eyeball + crease line above
+    P.fill_mask(P.subtract(m, P.shift(m, 0, -r * 0.35)), (150, 140, 175), alpha=90)
+    P.stroke(quad((x - r * 0.7, y - r * 1.18), (x, y - r * 1.42), (x + r * 0.75, y - r * 1.15)), 4, alpha=110)
 
 
 def pupil(P, x, y, r, size=0.52, look=(0.0, 0.14), color=INK, glint=True):
     px, py = x + look[0] * r, y + look[1] * r
-    P.ellipse(px, py, r * size * 0.88, r * size, fill=color, outline=0)
+    if color == INK and size < 0.62:
+        ir = r * min(0.82, size * 1.55)
+        iris = P.gradient([(0, tint(IRIS[0], 0.25)), (1, shade(IRIS[0], 0.7))], 90)
+        P.shape(P.m_ellipse(px, py, ir * 0.9, ir), iris, outline=4)
+        for k in range(10):
+            a = k * 0.628
+            P.stroke([(px + ir * 0.45 * math.cos(a), py + ir * 0.45 * math.sin(a)),
+                      (px + ir * 0.82 * math.cos(a), py + ir * 0.82 * math.sin(a))], 2.5, color=shade(IRIS[0], 0.55), alpha=140)
+    P.ellipse(px, py, r * size * 0.88 * 0.75, r * size * 0.75, fill=color, outline=0)
     if glint:
-        P.ellipse(px - r * size * 0.32, py - r * size * 0.36, r * size * 0.3, fill=WHITE, outline=0)
+        P.ellipse(px - r * size * 0.38, py - r * size * 0.42, r * size * 0.3, fill=WHITE, outline=0)
+        P.ellipse(px + r * size * 0.36, py + r * size * 0.34, r * size * 0.12, fill=WHITE, outline=0, alpha=220)
 
 
 def classic(P, x, y, r, inward=1, **kw):
@@ -55,6 +70,7 @@ def closed_arc(P, x, y, r, up=True):
 def eyes(ctx, kind):
     P = ctx.P
     fx, fy, r, sp = eye_metrics(ctx)
+    IRIS[0] = [hex_rgb(c) for c in ("#7A4E2D", "#2F7D6B", "#4A5FC1", "#8A4FB8", "#B5652A")][sum(map(ord, ctx.body.species + kind)) % 5]
     L, R = (fx - sp, fy), (fx + sp, fy)
     ctx.eyes = [(L[0], L[1], r), (R[0], R[1], r)]
     if kind == "Classic":

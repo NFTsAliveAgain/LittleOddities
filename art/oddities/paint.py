@@ -8,6 +8,9 @@ its consistent cartoon look.
 from __future__ import annotations
 
 import math
+import random
+
+import numpy as np
 from PIL import Image, ImageChops, ImageDraw, ImageFilter
 
 INK = (42, 30, 58)          # deep plum ink used for every outline
@@ -137,12 +140,33 @@ def width_at(poly, y):
 # painter
 # --------------------------------------------------------------------------
 class Painter:
-    """A supersampled RGBA canvas that understands unit coordinates."""
+    """A supersampled RGBA canvas that understands unit coordinates.
+
+    'Hand-drawn' style: every coordinate passes through a gentle warp field
+    (lines drift like a real pen) and outlines vary in thickness following a
+    smooth pressure field (like a brush pen), so no two lines are mechanical.
+    """
+    style = {"seed": 1, "warp": 1.8, "noise": {}, "phase": (0, 0, 0, 0)}
+
+    @classmethod
+    def set_style(cls, seed: int, warp: float = 1.8):
+        r = random.Random(seed)
+        cls.style = {"seed": seed, "warp": warp, "noise": {},
+                     "phase": tuple(r.uniform(0, 6.283) for _ in range(4))}
 
     def __init__(self, size: int = 2048):
         self.size = size
         self.s = size / 1000.0
         self.img = Image.new("RGBA", (size, size), (0, 0, 0, 0))
+
+    def pressure(self):
+        """Smooth noise (0-255) used as pen pressure. Cached per style + size."""
+        cache = Painter.style["noise"]
+        if self.size not in cache:
+            r = np.random.default_rng(Painter.style["seed"])
+            small = Image.fromarray((r.random((40, 40)) * 255).astype("uint8"), "L")
+            cache[self.size] = small.resize((self.size, self.size), Image.BICUBIC).filter(ImageFilter.GaussianBlur(self.size / 160))
+        return cache[self.size]
 
     # -- canvases ------------------------------------------------------
     def layer(self) -> "Painter":
@@ -155,7 +179,11 @@ class Painter:
         return v * self.s
 
     def P(self, pts):
-        return [(x * self.s, y * self.s) for x, y in pts]
+        a = Painter.style["warp"]
+        p1, p2, p3, p4 = Painter.style["phase"]
+        s = self.s
+        return [((x + a * (math.sin(0.043 * y + p1) + 0.6 * math.sin(0.071 * x + 0.02 * y + p2))) * s,
+                 (y + a * (math.sin(0.039 * x + p3) + 0.6 * math.sin(0.067 * y + 0.025 * x + p4))) * s) for x, y in pts]
 
     # -- masks ---------------------------------------------------------
     def m_poly(self, pts, m=None, value=255):
@@ -165,12 +193,8 @@ class Painter:
 
     def m_ellipse(self, cx, cy, rx, ry=None, rot=0.0, m=None, value=255):
         ry = rx if ry is None else ry
-        if rot == 0.0:
-            m = self.new_mask() if m is None else m
-            s = self.s
-            ImageDraw.Draw(m).ellipse([(cx - rx) * s, (cy - ry) * s, (cx + rx) * s, (cy + ry) * s], fill=value)
-            return m
-        return self.m_poly(ellipse_pts(cx, cy, rx, ry, rot), m, value)
+        n = int(max(24, min(160, (rx + ry) * 0.9)))
+        return self.m_poly(ellipse_pts(cx, cy, rx, ry, rot, n=n), m, value)
 
     def m_rect(self, x0, y0, x1, y1, radius=0, m=None, value=255):
         m = self.new_mask() if m is None else m
@@ -224,6 +248,44 @@ class Painter:
         out.paste(crop, box[:2])
         return out
 
+    def ink_line(self, m, w_units):
+        """Variable-width outline: thickness follows the pen-pressure field."""
+        r = w_units * self.s
+        bbox = m.getbbox()
+        if bbox is None:
+            return m.copy()
+        pad = int(r * 2.5 + 4)
+        box = (max(0, bbox[0] - pad), max(0, bbox[1] - pad),
+               min(self.size, bbox[2] + pad), min(self.size, bbox[3] + pad))
+        blur = np.asarray(m.crop(box).filter(ImageFilter.GaussianBlur(r / 1.4)), dtype=np.int16)
+        thr = 8 + np.asarray(self.pressure().crop(box), dtype=np.int16) * 40 // 255
+        crop = Image.fromarray(((blur > thr) * 255).astype("uint8"), "L")
+        out = self.new_mask()
+        out.paste(crop, box[:2])
+        return out
+
+    def halftone(self, region, spacing=11, max_r=3.6, alpha=110, color=INK):
+        """Comic-print halftone dots inside a region (dot size follows region softness)."""
+        bbox = region.getbbox()
+        if bbox is None:
+            return
+        soft = region.filter(ImageFilter.GaussianBlur(spacing * self.s))
+        dots = self.new_mask()
+        d = ImageDraw.Draw(dots)
+        st = spacing * self.s
+        y, row = bbox[1], 0
+        while y < bbox[3]:
+            x = bbox[0] + (st / 2 if row % 2 else 0)
+            while x < bbox[2]:
+                v = soft.getpixel((int(min(x, self.size - 1)), int(min(y, self.size - 1)))) / 255
+                rr = max_r * self.s * v
+                if rr > 0.6:
+                    d.ellipse([x - rr, y - rr, x + rr, y + rr], fill=255)
+                x += st
+            y += st * 0.866
+            row += 1
+        self._paint(self.intersect(dots, region), color, alpha)
+
     # -- painting ------------------------------------------------------
     def _paint(self, mask, fill, alpha=255, target=None):
         target = self.img if target is None else target
@@ -245,9 +307,26 @@ class Painter:
     def shape(self, mask, fill, outline=OUTLINE, ink=INK, alpha=255):
         """Fill a mask, with an optional bold ink outline around it."""
         if outline:
-            self._paint(self.dilate(mask, outline), ink)
+            self._paint(self.ink_line(mask, outline), ink)
         self._paint(mask, fill, alpha)
+        if outline and alpha == 255:
+            self.form_shade(mask)
         return mask
+
+    def form_shade(self, mask, strength=1.0):
+        """Painted volume on any object: shadow lower-right, rim light, highlight upper-left."""
+        bbox = mask.getbbox()
+        if bbox is None:
+            return
+        size_u = min(bbox[2] - bbox[0], bbox[3] - bbox[1]) / self.s
+        if size_u < 22:
+            return
+        k = max(5.0, min(26.0, size_u * 0.13))
+        shadow = self.subtract(mask, self.shift(mask, -k, -k * 0.8))
+        self._paint(shadow, INK, int(70 * strength))
+        self._paint(self.subtract(mask, self.shift(mask, -k * 0.25, -k * 0.2)), (255, 255, 255), int(45 * strength))
+        hl = self.subtract(mask, self.shift(mask, k * 0.45, k * 0.45))
+        self._paint(hl.filter(ImageFilter.GaussianBlur(k * 0.3 * self.s)), (255, 255, 255), int(85 * strength))
 
     def poly(self, pts, fill, outline=OUTLINE, alpha=255):
         return self.shape(self.m_poly(pts), fill, outline, alpha=alpha)

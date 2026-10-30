@@ -6,6 +6,8 @@ from __future__ import annotations
 import math
 from dataclasses import dataclass, field
 
+from PIL import ImageFilter
+
 from .paint import INK, OUTLINE, Painter, ellipse_pts, shade, tint, width_at
 
 
@@ -137,15 +139,33 @@ def draw_arm(P: Painter, body: Body, side: str, skin_base):
 def draw_body(P: Painter, body: Body, skin_fill, skin_base):
     """Main silhouette with cel shading. Returns the interior mask."""
     m = P.m_poly(body.poly)
-    P.shape(m, skin_fill, outline=OUTLINE + 1)
-    # cel shadow on lower-right rim
+    P.shape(m, skin_fill, outline=OUTLINE + 2)
+    # painted skin texture: mottled tones following the pressure field
+    tex = P.intersect(P.pressure().point(lambda v: max(0, v - 140) * 2), m)
+    P.fill_mask(tex, shade(skin_base, 0.9), alpha=70)
+    # light from upper-left: soft form shadow, then a crisp cel shadow, then halftone in the core
+    form = P.subtract(m, P.shift(m, -70, -55)).filter(ImageFilter.GaussianBlur(28 * P.s))
+    P.fill_mask(P.intersect(form, m), shade(skin_base, 0.85), alpha=120)
     shadow = P.subtract(m, P.shift(m, -34, -26))
-    P.fill_mask(shadow, shade(skin_base, 0.78), alpha=150)
+    P.fill_mask(shadow, shade(skin_base, 0.76), alpha=170)
+    P.halftone(P.subtract(m, P.shift(m, -22, -17)), spacing=10, max_r=3.2, alpha=90, color=shade(skin_base, 0.5))
+    # reflected light bouncing back onto the shadow edge
+    rim = P.subtract(m, P.shift(m, -7, -5))
+    P.fill_mask(rim, tint(skin_base, 0.35), alpha=150)
+    # ambient occlusion where the body meets the ground/shoulders
+    P.fill_mask(P.intersect(m, P.m_rect(0, body.bottom - 60, 1000, 1000)).filter(ImageFilter.GaussianBlur(20 * P.s)),
+                shade(skin_base, 0.7), alpha=90)
     # soft highlight upper-left
     hx = 500 - body.face_w * 0.28
     hy = body.top + (body.bottom - body.top) * 0.16
-    hl = P.intersect(P.m_ellipse(hx, hy, 46, 28, rot=-30), m)
-    P.fill_mask(hl, (255, 255, 255), alpha=120)
+    hl = P.intersect(P.m_ellipse(hx, hy, 52, 30, rot=-30), m)
+    P.fill_mask(hl.filter(ImageFilter.GaussianBlur(8 * P.s)), (255, 255, 255), alpha=110)
+    P.fill_mask(P.intersect(P.m_ellipse(hx - 6, hy - 4, 30, 12, rot=-30), m), (255, 255, 255), alpha=200)
+    # little hand-drawn hatching marks in the shadow side
+    for i in range(4):
+        x0 = 500 + body.face_w * 0.36 + i * 9
+        y0 = body.top + (body.bottom - body.top) * (0.52 + i * 0.035)
+        P.fill_mask(P.intersect(P.m_stroke([(x0, y0), (x0 + 22, y0 - 16)], 4), m), shade(skin_base, 0.55), alpha=150)
     hl2 = P.intersect(P.m_ellipse(hx + 58, hy - 22, 13, 10), m)
     P.fill_mask(hl2, (255, 255, 255), alpha=120)
     if body.species == "Prismling":

@@ -5,7 +5,7 @@ import hashlib
 import random
 from dataclasses import dataclass, field
 
-from PIL import Image, ImageChops, ImageStat
+from PIL import Image, ImageChops, ImageFilter, ImageStat
 
 from . import features, scenes, wearables
 from .bodies import Body, build_body, draw_arm, draw_body, draw_feet, draw_ground_shadow
@@ -42,6 +42,7 @@ def render(traits: dict, skin_info: dict, order, size: int = 2048, out_size: int
     """Render one character. The image is a pure function of its traits,
     so identical traits always produce an identical image."""
     dna = dna_of(traits, order)
+    Painter.set_style(_seed(dna, "pen"))
     bg = Painter(size)
     ch = Painter(size)
     body = build_body(traits["species"])
@@ -56,6 +57,7 @@ def render(traits: dict, skin_info: dict, order, size: int = 2048, out_size: int
               tuple(skin_info.get("families", ())))
 
     scenes.background(ctx, traits["background"])
+    light_background(bg, body)
     if framing == "full":
         draw_ground_shadow(bg, body)
 
@@ -82,6 +84,15 @@ def render(traits: dict, skin_info: dict, order, size: int = 2048, out_size: int
     img = bg.final(out_size).convert("RGB")
     img = grain(img, _seed(dna, "grain"))
     return img, qa
+
+
+def light_background(bg: Painter, body: Body):
+    """Studio lighting: warm glow behind the head, darker vignette corners, paper texture."""
+    glow = bg.m_ellipse(500, body.face[1] + 40, 420, 420).filter(ImageFilter.GaussianBlur(120 * bg.s))
+    bg.fill_mask(glow, (255, 250, 235), alpha=95)
+    vign = ImageChops.invert(bg.m_ellipse(500, 520, 700, 700).filter(ImageFilter.GaussianBlur(160 * bg.s)))
+    bg.fill_mask(vign, (42, 30, 58), alpha=80)
+    bg.fill_mask(bg.pressure().point(lambda v: max(0, v - 150) * 2), (255, 255, 255), alpha=40)
 
 
 def portrait_camera(ch: Painter, body: Body) -> Image.Image:

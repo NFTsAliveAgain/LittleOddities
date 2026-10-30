@@ -226,6 +226,13 @@ def _region(ctx, y0):
 
 def _edge(ctx, region):
     P = ctx.P
+    P.form_shade(region)
+    # fabric folds: a few soft crease strokes
+    b = ctx.body
+    for i, dx in enumerate((-0.22, 0.05, 0.28)):
+        x = 500 + dx * b.face_w
+        y = b.cloth_y + 60 + i * 18
+        P.fill_mask(P.intersect(P.m_stroke(quad((x, y), (x + 14, y + 40), (x + 2, y + 85)), 5), region), INK, alpha=55)
     P.fill_mask(P.intersect(P.subtract(P.dilate(region, FO), region), ctx.body_mask), INK)
 
 
