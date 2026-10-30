@@ -1,0 +1,20 @@
+{
+  "name": "little-oddities-contracts",
+  "private": true,
+  "scripts": {
+    "compile": "hardhat compile",
+    "test": "hardhat test",
+    "gas": "REPORT_GAS=true hardhat test",
+    "allowlist": "node scripts/allowlist.js",
+    "deploy:sepolia": "hardhat run scripts/deploy.js --network sepolia",
+    "deploy:mainnet": "hardhat run scripts/deploy.js --network mainnet"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+    "@openzeppelin/contracts": "^5.7.0",
+    "@openzeppelin/merkle-tree": "^1.0.8",
+    "dotenv": "^16.6.1",
+    "hardhat": "^2.29.1",
+    "solc": "^0.8.28"
+  }
+}

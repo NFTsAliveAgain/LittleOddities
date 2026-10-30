@@ -1,0 +1,20 @@
+{
+  "root": "0x79afd7cc45507dd2fdb00f4a22ecaf4c1fb373ffc3643fd86aa7f0c603455554",
+  "count": 2,
+  "total": 6,
+  "generatedAt": "2026-10-30T22:12:06.664Z",
+  "entries": {
+    "0x70997970c51812dc3a010c7d01b50e0d17dc79c8": {
+      "allocation": 2,
+      "proof": [
+        "0x0d96d6d5c8f8081adea20bd83bcf7399807c80fda31bd0d2f52b0f304167ab92"
+      ]
+    },
+    "0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc": {
+      "allocation": 4,
+      "proof": [
+        "0x418b8260135dc95e801fbf75c0f9c0ba3a2ca240486494f1c953920249db2c2a"
+      ]
+    }
+  }
+}

@@ -10,3 +10,5 @@ node_modules/
 .next/
 contracts/cache/
 contracts/artifacts/
+contracts/coverage/
+contracts/typechain-types/
