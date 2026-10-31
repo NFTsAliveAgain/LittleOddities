@@ -1,0 +1,30 @@
+{
+  "network": "sepolia",
+  "chainId": 11155111,
+  "address": "0x31CC41D62fc2Ea386AceDb8f9821f3113d77b22f",
+  "txHash": "0x74d59f04b3347fd4843effa89ad91e9e5c60368cb3f68818a42508e88bdb81f4",
+  "args": [
+    "0xC49f8eb7460246769Adb3a9C0304F000aE7aFD1f",
+    "ipfs://__HIDDEN_CID__/hidden.json",
+    "ipfs://__COLLECTION_CID__/collection.json",
+    10,
+    500
+  ],
+  "deployedAt": "2026-10-31T21:03:48.620Z",
+  "purpose": "TEST deployment on Sepolia (no real value). Owner = founder wallet.",
+  "gasUsed": 19659547,
+  "block": 12036398,
+  "sourceVerification": {
+    "service": "Sourcify",
+    "match": "exact_match",
+    "verifiedAt": "2026-10-31T21:05:24Z",
+    "url": "https://repo.sourcify.dev/11155111/0x31CC41D62fc2Ea386AceDb8f9821f3113d77b22f"
+  },
+  "explorer": "https://sepolia.etherscan.io/address/0x31CC41D62fc2Ea386AceDb8f9821f3113d77b22f",
+  "measuredOnSepolia": {
+    "deployGas": 19659547,
+    "mintReserveEstimateGas": 57327921,
+    "localSimulatorDeployGas": 2886083,
+    "note": "Sepolia charges far more for storing new data than the local simulator; see SMART_CONTRACT_GUIDE"
+  }
+}
