@@ -38,14 +38,29 @@ export default async function Home() {
             </div>
             <div className="mt-10 text-ink"><Countdown /></div>
           </div>
-          <div className="grid grid-cols-3 gap-3 rotate-1">
-            {showcase.map((t, i) => (
-              <Link key={t.id} href={`/collection/${t.id}`} className={`card overflow-hidden text-ink ${i === 0 ? "col-span-2 row-span-2" : ""}`}>
-                <OddityArt character={t.character} species={t.traits.Species} tier={t.tier} />
-                <div className="p-2 flex items-center justify-between gap-2 text-sm"><span className="font-bold truncate">{label(t.id)}</span><TierBadge tier={t.tier} /></div>
-              </Link>
-            ))}
-          </div>
+          {site.imagesBase ? (
+            <div className="grid grid-cols-3 gap-3 rotate-1">
+              {showcase.map((t, i) => (
+                <Link key={t.id} href={`/collection/${t.id}`} className={`card overflow-hidden text-ink ${i === 0 ? "col-span-2 row-span-2" : ""}`}>
+                  <OddityArt character={t.character} species={t.traits.Species} tier={t.tier} />
+                  <div className="p-2 flex items-center justify-between gap-2 text-sm"><span className="font-bold truncate">{label(t.id)}</span><TierBadge tier={t.tier} /></div>
+                </Link>
+              ))}
+            </div>
+          ) : (
+            <div>
+              <div className="grid grid-cols-2 gap-4 rotate-1">
+                {[["fuzzy", "Fuzzy"], ["mushroom", "Mushroom"], ["ghost", "Ghost"], ["sprout", "Sprout"]].map(([file, name], i) => (
+                  <div key={file} className={`card overflow-hidden text-ink ${i % 2 ? "translate-y-4" : ""}`}>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={`/preview/${file}.webp`} alt={`${name} — Little Oddities concept preview`} className="w-full aspect-square object-cover" />
+                    <div className="p-2 text-sm font-bold">{name}</div>
+                  </div>
+                ))}
+              </div>
+              <p className="mt-8 text-sm text-cream/70">Concept previews — the final hand-drawn collection art is being created.</p>
+            </div>
+          )}
         </div>
       </section>
 
