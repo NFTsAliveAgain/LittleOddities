@@ -43,11 +43,11 @@ giveaways. Tokens are revealed together after the mint using provable on-chain r
 
 ## Founder decisions (Oct 31, 2026)
 - Lifetime wallet limit: **10** · Royalty: **5%** · 500 reserve → **founder's own wallet**
+- Owner wallet (public): `0xC49f8eb7460246769Adb3a9C0304F000aE7aFD1f` — recorded in `contracts/founder-wallet.json`; contract owner, mint proceeds, 500 reserve, admin login
 - Launch: **Wednesday Nov 3, 2027, 12:00 PM New York time (EDT)**
 - **Delayed reveal** with provenance + on-chain randomness (replaces instant reveal)
 
 ## Still waiting on the founder
 1. **Artist:** rights + AI-use answers, quote for production layers (ARTIST_LAYER_SPEC).
-2. **Owner wallet public address** (needed before any deployment).
-3. **Reveal timing:** proposed at sell-out or 48h after public mint opens, whichever first.
-4. **Allowlist criteria and size.**
+2. **Reveal timing:** proposed at sell-out or 48h after public mint opens, whichever first.
+3. **Allowlist criteria and size.**

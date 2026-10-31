@@ -37,4 +37,4 @@ Visitors see the countdown in real time and the launch moment written in New Yor
 
 ## Tests
 - `npm run typecheck` and `npm run build`
-- `node scripts/e2e-local.mjs` — 22-step end-to-end test against a local Hardhat chain (see the script header)
+- `node scripts/e2e-local.mjs` — 26-step end-to-end test against a local Hardhat chain. The local deploy uses a Hardhat test account as owner, so run the deploy with `CONFIRM_DIFFERENT_OWNER=yes` (allowed only for throwaway test chains).

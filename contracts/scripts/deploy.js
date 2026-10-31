@@ -14,6 +14,10 @@ async function main() {
     throw new Error("Mainnet deploy blocked. This spends real ETH and needs the founder's explicit approval (see docs/DEPLOYMENT_GUIDE.md).");
   }
   if (!ethers.isAddress(env.OWNER_ADDRESS) || /^0x0+$/.test(env.OWNER_ADDRESS)) throw new Error("Set OWNER_ADDRESS in .env to your PUBLIC owner wallet address");
+  const founder = require("../founder-wallet.json").ownerAddress;
+  if (ethers.getAddress(env.OWNER_ADDRESS) !== ethers.getAddress(founder) && env.CONFIRM_DIFFERENT_OWNER !== "yes") {
+    throw new Error(`OWNER_ADDRESS (${env.OWNER_ADDRESS}) is not the founder's recorded wallet (${founder}). Set CONFIRM_DIFFERENT_OWNER=yes only for throwaway test deploys.`);
+  }
   if (chainId === 1 && /__.*_CID__/.test(env.UNREVEALED_URI || "")) throw new Error("UNREVEALED_URI still has a placeholder CID. Upload + verify the mystery metadata on IPFS first.");
 
   const [deployer] = await ethers.getSigners();

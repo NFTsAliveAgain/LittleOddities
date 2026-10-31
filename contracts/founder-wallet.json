@@ -1,0 +1,4 @@
+{
+  "_readme": "PUBLIC address of the founder's owner wallet (confirmed by the founder on 2026-10-31). Receives contract ownership, mint proceeds (via withdraw) and the 500 reserved giveaway NFTs. Public information only — never put keys or seed phrases anywhere in this repository.",
+  "ownerAddress": "0xC49f8eb7460246769Adb3a9C0304F000aE7aFD1f"
+}
