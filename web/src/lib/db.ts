@@ -11,8 +11,10 @@ export function db(): Client {
     client = createClient({
       // No DATABASE_URL on a host like Vercel: use its writable temp folder so pages still work.
       // That data is NOT permanent — set DATABASE_URL to a Turso database for real use.
-      url: process.env.DATABASE_URL || (process.env.VERCEL ? "file:/tmp/naa.db" : "file:data/local.db"),
-      authToken: process.env.DATABASE_AUTH_TOKEN || undefined,
+      // TURSO_* names are what Vercel's Turso integration sets automatically.
+      url: process.env.DATABASE_URL || process.env.TURSO_DATABASE_URL ||
+        (process.env.VERCEL ? "file:/tmp/naa.db" : "file:data/local.db"),
+      authToken: process.env.DATABASE_AUTH_TOKEN || process.env.TURSO_AUTH_TOKEN || undefined,
     });
   }
   return client;
