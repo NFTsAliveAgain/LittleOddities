@@ -9,7 +9,9 @@ let ready: Promise<void> | null = null;
 export function db(): Client {
   if (!client) {
     client = createClient({
-      url: process.env.DATABASE_URL || "file:data/local.db",
+      // No DATABASE_URL on a host like Vercel: use its writable temp folder so pages still work.
+      // That data is NOT permanent — set DATABASE_URL to a Turso database for real use.
+      url: process.env.DATABASE_URL || (process.env.VERCEL ? "file:/tmp/naa.db" : "file:data/local.db"),
       authToken: process.env.DATABASE_AUTH_TOKEN || undefined,
     });
   }

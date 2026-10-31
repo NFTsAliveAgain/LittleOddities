@@ -1,6 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  // The gallery reads data/collection.json at runtime; make sure hosting bundles it.
+  outputFileTracingIncludes: { "/**": ["./data/collection.json"] },
   webpack: (config) => {
     // optional deps pulled in by wallet libraries that are not needed in the browser
     config.externals.push("pino-pretty", "lokijs", "encoding");
