@@ -22,7 +22,7 @@ No passwords exist. To add a helper admin, add their public address to `ADMIN_AD
 | Mint settings (on-chain) | Open/close allowlist + public mint, set price, wallet limit, allowlist root, mint the 500 reserve, withdraw, **delayed reveal** (provenance → commit → finalize → reveal) |
 
 ## The 500 giveaway NFTs — workflow
-1. After deployment, Mint settings → **Mint 500 reserve** (one time; costs ≈12.6M gas — do it when gas is low).
+1. After deployment, Mint settings → **Mint next 100 of reserve** — press it 5 times (one transaction each) until it shows 500 / 500. Do it when gas is low. It can never go above 500.
 2. Create a giveaway (Giveaways tab), publish it, and announce rules publicly.
 3. Pick winners fairly and transparently (e.g. announced criteria or a public random draw).
 4. Send each NFT from the owner wallet (OpenSea "Transfer" or your wallet's NFT send).

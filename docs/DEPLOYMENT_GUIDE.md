@@ -35,7 +35,7 @@ Expected cost: deploy ≈ 2.38M gas (≈ 0.012 ETH at 5 gwei, 0.048 ETH at 20 gw
 
 ## Step 3 — After deployment (owner wallet, from the admin dashboard)
 1. Verify on Etherscan. 2. **Set the provenance hash** (before ANY mint — it locks at the first mint).
-3. Mint the 500 reserve to your wallet (when gas is low; ≈12.6M gas). 4. Set allowlist root. 5. Set up OpenSea (OPENSEA_GUIDE).
+3. Mint the 500 reserve to your wallet in 5 batches of 100 (when gas is low; see SMART_CONTRACT_GUIDE for gas). 4. Set allowlist root. 5. Set up OpenSea (OPENSEA_GUIDE).
 6. Open allowlist / public mint only at the announced time.
 7. Reveal (admin → Mint settings → Delayed reveal): Commit → Finalize → build metadata with the starting index → Reveal.
 8. Freeze metadata once you are 100% sure it's final (optional, irreversible).

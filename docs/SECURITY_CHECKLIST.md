@@ -10,7 +10,7 @@
 
 ## Contract
 - [x] OpenZeppelin audited building blocks (ERC721, ERC2981, Ownable2Step, ReentrancyGuard, MerkleProof)
-- [x] Exact payment, 4/tx, wallet limit, supply cap, reserve-once all enforced on-chain and tested
+- [x] Exact payment, 4/tx, wallet limit, supply cap, 500-total reserve cap all enforced on-chain and tested
 - [x] Reentrancy attack test passes
 - [x] Every admin function owner-only and tested against non-owners
 - [x] `renounceOwnership` disabled; two-step ownership transfer

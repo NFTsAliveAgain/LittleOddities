@@ -227,24 +227,49 @@ describe("LittleOddities", function () {
   });
 
   describe("500 reserved giveaway NFTs", function () {
-    it("mints exactly 500 to the owner once, free, with an event", async function () {
+    it("mints the 500 to the owner in batches, free, with an event per batch", async function () {
       const { c, owner } = await loadFixture(deploy);
-      const tx = c.mintReserve();
-      await expect(tx).to.emit(c, "ReserveMinted").withArgs(owner.address, 1, 500);
+      await expect(c.mintReserve(100)).to.emit(c, "ReserveMinted").withArgs(owner.address, 1, 100);
+      await expect(c.mintReserve(250)).to.emit(c, "ReserveMinted").withArgs(owner.address, 101, 350);
+      expect(await c.reserveMintedCount()).to.equal(350n);
+      expect(await c.reserveMinted()).to.equal(false);
+      await c.mintReserve(150);
+      expect(await c.reserveMintedCount()).to.equal(500n);
+      expect(await c.reserveMinted()).to.equal(true);
       expect(await c.balanceOf(owner.address)).to.equal(500n);
       expect(await c.totalSupply()).to.equal(500n);
-      const r = await (await tx).wait?.();
-      await expect(c.mintReserve()).to.be.revertedWithCustomError(c, "ReserveAlreadyMinted");
+      await expect(c.mintReserve(1)).to.be.revertedWithCustomError(c, "ReserveAlreadyMinted");
     });
-    it("reports reserve gas usage", async function () {
+    it("can never exceed 500 in total, and rejects a zero batch", async function () {
       const { c } = await loadFixture(deploy);
-      const rc = await (await c.mintReserve()).wait();
-      console.log(`      reserve mint gas used: ${rc.gasUsed}`);
-      expect(rc.gasUsed).to.be.lessThan(30_000_000n);
+      await expect(c.mintReserve(501)).to.be.revertedWithCustomError(c, "ExceedsReserve");
+      await expect(c.mintReserve(0)).to.be.revertedWithCustomError(c, "InvalidQuantity");
+      await c.mintReserve(499);
+      await expect(c.mintReserve(2)).to.be.revertedWithCustomError(c, "ExceedsReserve");
+      await c.mintReserve(1);
+      expect(await c.reserveMintedCount()).to.equal(500n);
+    });
+    it("all 500 in one call still works where gas allows", async function () {
+      const { c, owner } = await loadFixture(deploy);
+      await expect(c.mintReserve(500)).to.emit(c, "ReserveMinted").withArgs(owner.address, 1, 500);
+      await expect(c.mintReserve(1)).to.be.revertedWithCustomError(c, "ReserveAlreadyMinted");
+    });
+    it("reports reserve gas usage per 100-token batch (local simulator)", async function () {
+      const { c } = await loadFixture(deploy);
+      const rc = await (await c.mintReserve(100)).wait();
+      console.log(`      reserve batch of 100, gas used: ${rc.gasUsed}`);
+      expect(rc.gasUsed).to.be.lessThan(16_000_000n);
     });
     it("cannot be called by anyone but the owner", async function () {
       const { c, mallory } = await loadFixture(deploy);
-      await expect(c.connect(mallory).mintReserve()).to.be.revertedWithCustomError(c, "OwnableUnauthorizedAccount");
+      await expect(c.connect(mallory).mintReserve(1)).to.be.revertedWithCustomError(c, "OwnableUnauthorizedAccount");
+    });
+    it("a partly-minted reserve still holds back exactly the unminted reserved slots", async function () {
+      const { c } = await loadFixture(deployLive);
+      await c.mintReserve(200);
+      expect(await c.remainingPaidSupply()).to.equal(9500n); // 10,000 - 200 minted - 300 still reserved
+      await c.mintReserve(300);
+      expect(await c.remainingPaidSupply()).to.equal(9500n);
     });
     it("paid mints can never use the reserved 500, and supply never exceeds 10,000", async function () {
       const { c, owner } = await loadFixture(deployLive);
@@ -256,7 +281,9 @@ describe("LittleOddities", function () {
       for (let i = 0; i < 2375; i++) await c.publicMint(4);
       expect(await c.totalSupply()).to.equal(9500n);
       await expect(c.publicMint(1)).to.be.revertedWithCustomError(c, "ExceedsSupply");
-      await c.mintReserve();
+      await c.mintReserve(300);
+      await expect(c.publicMint(1)).to.be.revertedWithCustomError(c, "ExceedsSupply"); // still 200 reserved
+      await c.mintReserve(200);
       expect(await c.totalSupply()).to.equal(10000n);
       expect(await c.ownerOf(10000)).to.equal(owner.address);
       await expect(c.publicMint(1)).to.be.revertedWithCustomError(c, "ExceedsSupply");
@@ -273,7 +300,7 @@ describe("LittleOddities", function () {
         () => m.setAllowlistActive(true), () => m.setPublicActive(true), () => m.setBaseURI("x"),
         () => m.setContractURI("x"), () => m.freezeMetadata(), () => m.setRoyalty(mallory.address, 1),
         () => m.setProvenanceHash("x"), () => m.setUnrevealedURI("x"), () => m.commitReveal(), () => m.reveal("x"),
-        () => m.withdraw(), () => m.mintReserve(), () => m.transferOwnership(mallory.address),
+        () => m.withdraw(), () => m.mintReserve(1), () => m.transferOwnership(mallory.address),
       ]) {
         await expect(call()).to.be.revertedWithCustomError(c, "OwnableUnauthorizedAccount");
       }
@@ -292,7 +319,7 @@ describe("LittleOddities", function () {
       await c.connect(carol).acceptOwnership();
       expect(await c.owner()).to.equal(carol.address);
       await expect(c.setMintPrice(1)).to.be.revertedWithCustomError(c, "OwnableUnauthorizedAccount");
-      await c.connect(carol).mintReserve();
+      await c.connect(carol).mintReserve(500);
       expect(await c.balanceOf(carol.address)).to.equal(500n);
     });
     it("blocks reentrancy through onERC721Received", async function () {

@@ -23,7 +23,7 @@ import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 ///     the final art matches the provenance hash and the on-chain startingIndex.
 ///
 /// Every owner power is listed in docs/SMART_CONTRACT_GUIDE.md. There are no
-/// hidden roles. The owner can NOT mint beyond the one-time 500 reserve, can
+/// hidden roles. The owner can NOT mint beyond the 500 reserve (total, ever), can
 /// NOT exceed 10,000 tokens, and can NOT change metadata once it is frozen.
 contract LittleOddities is ERC721, ERC2981, Ownable2Step, ReentrancyGuard {
     using Strings for uint256;
@@ -38,7 +38,8 @@ contract LittleOddities is ERC721, ERC2981, Ownable2Step, ReentrancyGuard {
     uint256 public mintPrice = 0.005 ether;
     uint256 public walletLimit; // lifetime paid mints per wallet (allowlist + public)
     uint256 public totalSupply;
-    bool public reserveMinted;
+    bool public reserveMinted; // true once all 500 reserved tokens have been minted
+    uint256 public reserveMintedCount; // reserved tokens minted so far (0..500)
     bool public allowlistActive;
     bool public publicActive;
     bool public metadataFrozen;
@@ -84,6 +85,7 @@ contract LittleOddities is ERC721, ERC2981, Ownable2Step, ReentrancyGuard {
     error ExceedsAllowlistAllocation();
     error InvalidProof();
     error ReserveAlreadyMinted();
+    error ExceedsReserve();
     error MetadataIsFrozen();
     error ProvenanceLocked();
     error ProvenanceMissing();
@@ -143,8 +145,7 @@ contract LittleOddities is ERC721, ERC2981, Ownable2Step, ReentrancyGuard {
         if (msg.value != expected) revert WrongPayment(expected, msg.value); // rejects under- AND over-payment
         if (mintedBy[msg.sender] + quantity > walletLimit) revert ExceedsWalletLimit();
         // Paid mints can never eat into the 500 reserved tokens.
-        uint256 cap = reserveMinted ? MAX_SUPPLY : MAX_SUPPLY - RESERVED_SUPPLY;
-        if (totalSupply + quantity > cap) revert ExceedsSupply();
+        if (totalSupply + quantity > _paidCap()) revert ExceedsSupply();
         mintedBy[msg.sender] += quantity;
         uint256 first = totalSupply + 1;
         totalSupply += quantity;
@@ -154,19 +155,29 @@ contract LittleOddities is ERC721, ERC2981, Ownable2Step, ReentrancyGuard {
         emit Minted(msg.sender, first, quantity, allowlist, msg.value);
     }
 
-    /// @notice One-time mint of the 500 community giveaway NFTs to the owner wallet.
-    ///         Part of the 10,000 supply, never in addition to it.
-    function mintReserve() external onlyOwner nonReentrant {
+    /// @notice Mint reserved community giveaway NFTs to the owner wallet, in one or more batches.
+    ///         Exactly 500 in total, ever — part of the 10,000 supply, never in addition to it.
+    ///         Batching exists because minting 500 in a single transaction can exceed
+    ///         Ethereum's per-transaction gas limit.
+    function mintReserve(uint256 quantity) external onlyOwner nonReentrant {
         if (reserveMinted) revert ReserveAlreadyMinted();
-        if (totalSupply + RESERVED_SUPPLY > MAX_SUPPLY) revert ExceedsSupply(); // unreachable by design, kept as a guard
-        reserveMinted = true;
+        if (quantity == 0) revert InvalidQuantity();
+        if (reserveMintedCount + quantity > RESERVED_SUPPLY) revert ExceedsReserve();
+        if (totalSupply + quantity > MAX_SUPPLY) revert ExceedsSupply(); // unreachable by design, kept as a guard
+        reserveMintedCount += quantity;
+        if (reserveMintedCount == RESERVED_SUPPLY) reserveMinted = true;
         address to = owner();
         uint256 first = totalSupply + 1;
-        totalSupply += RESERVED_SUPPLY;
-        for (uint256 i = 0; i < RESERVED_SUPPLY; i++) {
+        totalSupply += quantity;
+        for (uint256 i = 0; i < quantity; i++) {
             _mint(to, first + i);
         }
-        emit ReserveMinted(to, first, first + RESERVED_SUPPLY - 1);
+        emit ReserveMinted(to, first, first + quantity - 1);
+    }
+
+    /// @dev Paid mints may never use reserved slots that haven't been minted yet.
+    function _paidCap() private view returns (uint256) {
+        return MAX_SUPPLY - (RESERVED_SUPPLY - reserveMintedCount);
     }
 
     // ============================================================ owner admin
@@ -305,8 +316,7 @@ contract LittleOddities is ERC721, ERC2981, Ownable2Step, ReentrancyGuard {
     }
 
     function remainingPaidSupply() external view returns (uint256) {
-        uint256 cap = reserveMinted ? MAX_SUPPLY : MAX_SUPPLY - RESERVED_SUPPLY;
-        return cap - totalSupply;
+        return _paidCap() - totalSupply;
     }
 
     function supportsInterface(bytes4 interfaceId) public view override(ERC721, ERC2981) returns (bool) {

@@ -9,7 +9,7 @@ Solidity 0.8.28 · Tests: `contracts/test/LittleOddities.test.js` (27 passing)
 | Rule | Value |
 |---|---|
 | Maximum supply | 10,000 |
-| Reserved giveaway allocation | 500 (part of the 10,000), mintable **once** |
+| Reserved giveaway allocation | 500 (part of the 10,000), **500 total ever**, minted to the owner in batches |
 | Max per paid transaction | 4 |
 | Token IDs | Sequential, starting at 1 |
 | Max royalty | 10% |
@@ -23,7 +23,7 @@ Solidity 0.8.28 · Tests: `contracts/test/LittleOddities.test.js` (27 passing)
 | `setMerkleRoot(root)` | Publish allowlist | empty |
 | `setAllowlistActive(bool)` | Open/close allowlist mint | closed |
 | `setPublicActive(bool)` | Open/close public mint | closed |
-| `mintReserve()` | Mint the 500 reserved NFTs to the owner wallet (once) | — |
+| `mintReserve(quantity)` | Mint reserved NFTs to the owner wallet; batches add up to exactly 500, never more | — |
 | `setProvenanceHash(hash)` | Publish the image fingerprint — **only before the first mint** | empty |
 | `setUnrevealedURI(uri)` | Mystery metadata shown before reveal | from deploy |
 | `commitReveal()` | Reveal step 1: choose the next block as randomness source | — |
@@ -56,15 +56,20 @@ node scripts/allowlist.js export allowlist/export.csv
 Build prints the Merkle root (paste into the admin dashboard → Mint settings → Set root) and writes
 `web/public/allowlist.json` so the website can show eligibility and supply proofs.
 
-## Measured gas (local test chain)
-| Action | Gas | Cost at 5 gwei | Cost at 20 gwei |
-|---|---|---|---|
-| Deploy | 2,377,382 | ~0.012 ETH | ~0.048 ETH |
-| Mint 1 (first mint of a wallet) | ~125,400 | ~0.0006 ETH | ~0.0025 ETH |
-| Mint 4 | ~150,000 | ~0.00075 ETH | ~0.003 ETH |
-| Reserve 500 (once) | 12,568,085 | ~0.063 ETH | ~0.25 ETH |
-| Withdraw | ~34,600 | tiny | tiny |
-Cost = gas × gas price. Check https://etherscan.io/gastracker before any mainnet action.
+## Measured gas
+**Important:** Sepolia (Oct 31, 2026) charges far more for storing new data than the local simulator — deploying
+cost ~6.8× more and the 500 reserve ~4.6× more. Mainnet pricing in 2027 may match either; **re-measure before mainnet.**
+
+| Action | Local simulator | Sepolia (measured / estimated) |
+|---|---|---|
+| Deploy | 2,886,083 | 19,840,635 (measured) |
+| Mint 1 (first mint of a wallet) | ~125,400 | not yet measured |
+| Reserve, batch of 100 | 2,598,894 | 11,757,732 (estimated by the network) |
+| Reserve, all 500 at once | ~12.6M | fails: needs > 50,000,000 — **too large for one transaction** |
+| Withdraw | ~34,600 | not yet measured |
+Cost = gas × gas price (e.g. 20M gas at 1 gwei = 0.02 ETH; at 10 gwei = 0.2 ETH). Check https://etherscan.io/gastracker before any mainnet action.
+**Why the reserve is batched:** a single 500-token mint can exceed Ethereum's per-transaction gas limit (~16.7M).
+Batches of **100** stay under it. The 500 total cap is enforced on-chain regardless of batch size.
 
 ## Delayed reveal (founder decision, Oct 31, 2026)
 Chosen to stop "rarity sniping" (the original brief asked for instant reveal; the founder changed this).
@@ -84,7 +89,8 @@ considered acceptable and is widely used. Chainlink VRF is the stronger (paid) a
 ## Known trade-offs (please read)
 1. **Unrevealed period:** holders see a mystery image until the reveal; be clear about the reveal timing.
 2. **Royalties are not enforced** by marketplaces; ERC-2981 is only a signal.
-3. **Reserve mint is one big transaction** (~12.6M gas). Do it when gas is low, before public mint.
+3. **Reserve mint takes ~5 transactions** (batches of 100). Do them when gas is low, before public mint.
+4. **Gas cost uncertainty:** see "Measured gas" — a gas-saving ERC721A implementation can be evaluated before launch.
 
 ## Running tests
 ```bash

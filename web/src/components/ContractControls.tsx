@@ -10,10 +10,12 @@ export default function ContractControls() {
   const { address } = useAccount();
   const c = { address: contractAddress as `0x${string}`, abi: oddityAbi } as const;
   const { data, refetch } = useReadContracts({ contracts: ["owner", "mintPrice", "walletLimit", "publicActive", "allowlistActive", "merkleRoot", "reserveMinted", "totalSupply", "metadataFrozen",
-    "provenanceHash", "startingIndexBlock", "startingIndexSet", "startingIndex", "revealed"]
+    "provenanceHash", "startingIndexBlock", "startingIndexSet", "startingIndex", "revealed", "reserveMintedCount"]
     .map((f) => ({ ...c, functionName: f })), query: { enabled: Boolean(contractAddress) } });
-  const [owner, price, limit, pub, al, root, reserved, supply, frozen, prov, siBlock, siSet, si, revealed] = (data || []).map((d) => d.result) as
-    [string, bigint, bigint, boolean, boolean, string, boolean, bigint, boolean, string, bigint, boolean, bigint, boolean];
+  const [owner, price, limit, pub, al, root, reserved, supply, frozen, prov, siBlock, siSet, si, revealed, resCount] = (data || []).map((d) => d.result) as
+    [string, bigint, bigint, boolean, boolean, string, boolean, bigint, boolean, string, bigint, boolean, bigint, boolean, bigint];
+  const resLeft = resCount !== undefined ? 500 - Number(resCount) : 500;
+  const batch = Math.min(100, resLeft);
   const { writeContractAsync } = useWriteContract();
   const [msg, setMsg] = useState("");
   const [inputs, setInputs] = useState({ price: "", limit: "", root: "", prov: "", base: "" });
@@ -40,7 +42,7 @@ export default function ContractControls() {
         <div>Minted: <b>{supply?.toString()}</b></div>
         <div>Public mint: <b>{pub ? "OPEN" : "closed"}</b></div>
         <div>Allowlist mint: <b>{al ? "OPEN" : "closed"}</b></div>
-        <div>Reserve (500) minted: <b>{reserved ? "yes" : "no"}</b></div>
+        <div>Giveaway reserve minted: <b>{resCount?.toString() ?? "…"} / 500</b></div>
         <div className="sm:col-span-3 break-all">Merkle root: <b>{root}</b></div>
         <div>Metadata frozen: <b>{frozen ? "yes" : "no"}</b></div>
       </div>
@@ -48,7 +50,7 @@ export default function ContractControls() {
         <div className="flex flex-wrap gap-2">
           <button className="btn bg-mint" onClick={() => act(`${al ? "CLOSE" : "OPEN"} allowlist minting`, "setAllowlistActive", [!al])}>{al ? "Close" : "Open"} allowlist mint</button>
           <button className="btn bg-mint" onClick={() => act(`${pub ? "CLOSE" : "OPEN"} PUBLIC minting`, "setPublicActive", [!pub])}>{pub ? "Close" : "Open"} public mint</button>
-          {!reserved && <button className="btn bg-butter" onClick={() => act("Mint the 500 reserved giveaway NFTs to the owner wallet (one time only, large gas cost)", "mintReserve")}>Mint 500 reserve</button>}
+          {!reserved && batch > 0 && <button className="btn bg-butter" onClick={() => act(`Mint the next ${batch} reserved giveaway NFTs to the owner wallet (${resLeft} of 500 left). Batches of 100 keep each transaction under Ethereum's gas limit.`, "mintReserve", [BigInt(batch)])}>Mint next {batch} of reserve ({resLeft} left)</button>}
           <button className="btn bg-white" onClick={() => act("Withdraw all mint proceeds to the owner wallet", "withdraw")}>Withdraw funds</button>
         </div>
         <div className="flex flex-wrap gap-2 items-end">

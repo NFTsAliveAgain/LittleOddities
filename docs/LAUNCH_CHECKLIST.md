@@ -23,7 +23,7 @@ Tick every box before Nov 3, 2027. Any unticked **critical** item = recommend de
 - [ ] Provenance hash set on-chain **before** the first mint, matches `art/output/provenance.json`
 - [ ] Owner = founder's wallet (public address confirmed with founder)
 - [ ] `tokenURI(1)` shows the mystery metadata before reveal
-- [ ] 500 reserve minted to owner wallet
+- [ ] 500 reserve minted to owner wallet (admin shows 500 / 500)
 - [ ] Allowlist root set and spot-checked with `allowlist.js check`
 - [ ] Public mint **closed** until the founder opens it
 - [ ] Reveal date announced; reveal rehearsed on Sepolia (commit → finalize → metadata → reveal → spot-check tokens)

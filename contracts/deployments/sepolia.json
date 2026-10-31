@@ -1,8 +1,8 @@
 {
   "network": "sepolia",
   "chainId": 11155111,
-  "address": "0x31CC41D62fc2Ea386AceDb8f9821f3113d77b22f",
-  "txHash": "0x74d59f04b3347fd4843effa89ad91e9e5c60368cb3f68818a42508e88bdb81f4",
+  "address": "0xde910A6E4374eAd2e2eC969374796E223f27406c",
+  "txHash": "0xcfc5cf5d88778451d34cffae279fc0969dcd2e318494a92f3cb0beec12699f25",
   "args": [
     "0xC49f8eb7460246769Adb3a9C0304F000aE7aFD1f",
     "ipfs://__HIDDEN_CID__/hidden.json",
@@ -10,21 +10,28 @@
     10,
     500
   ],
-  "deployedAt": "2026-10-31T21:03:48.620Z",
-  "purpose": "TEST deployment on Sepolia (no real value). Owner = founder wallet.",
-  "gasUsed": 19659547,
-  "block": 12036398,
+  "deployedAt": "2026-10-31T21:12:25.443Z",
+  "purpose": "TEST deployment on Sepolia (no real value). Owner = founder wallet. Batched 500-token reserve.",
+  "gasUsed": 19840635,
+  "block": 12036441,
   "sourceVerification": {
     "service": "Sourcify",
     "match": "exact_match",
-    "verifiedAt": "2026-10-31T21:05:24Z",
-    "url": "https://repo.sourcify.dev/11155111/0x31CC41D62fc2Ea386AceDb8f9821f3113d77b22f"
+    "verifiedAt": "2026-10-31T21:13:06Z",
+    "url": "https://repo.sourcify.dev/11155111/0xde910A6E4374eAd2e2eC969374796E223f27406c"
   },
-  "explorer": "https://sepolia.etherscan.io/address/0x31CC41D62fc2Ea386AceDb8f9821f3113d77b22f",
+  "explorer": "https://sepolia.etherscan.io/address/0xde910A6E4374eAd2e2eC969374796E223f27406c",
   "measuredOnSepolia": {
-    "deployGas": 19659547,
-    "mintReserveEstimateGas": 57327921,
-    "localSimulatorDeployGas": 2886083,
-    "note": "Sepolia charges far more for storing new data than the local simulator; see SMART_CONTRACT_GUIDE"
-  }
+    "deployGas": 19840635,
+    "mintReserve100EstimateGas": 11757732,
+    "mintReserve500": "fails: needs more than 50,000,000 gas",
+    "localSimulatorDeployGas": 2886083
+  },
+  "previousDeployments": [
+    {
+      "address": "0x31CC41D62fc2Ea386AceDb8f9821f3113d77b22f",
+      "txHash": "0x74d59f04b3347fd4843effa89ad91e9e5c60368cb3f68818a42508e88bdb81f4",
+      "note": "superseded: one-shot 500 reserve (too large for one transaction on Sepolia)"
+    }
+  ]
 }
