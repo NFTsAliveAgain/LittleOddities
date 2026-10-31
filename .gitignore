@@ -12,3 +12,5 @@ contracts/cache/
 contracts/artifacts/
 contracts/coverage/
 contracts/typechain-types/
+contracts/deployments/localhost.json
+contracts/deployments/hardhat.json
