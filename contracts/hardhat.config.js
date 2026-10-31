@@ -25,5 +25,7 @@ module.exports = {
     mainnet: { url: MAINNET_RPC_URL || "", accounts, chainId: 1 },
   },
   etherscan: { apiKey: ETHERSCAN_API_KEY || "" },
+  // Free, account-less source verification (Sourcify). Etherscan verification also works once ETHERSCAN_API_KEY is set.
+  sourcify: { enabled: true },
   gasReporter: { enabled: !!process.env.REPORT_GAS, currency: "USD" },
 };
