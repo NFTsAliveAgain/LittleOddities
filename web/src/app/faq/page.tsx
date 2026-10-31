@@ -13,7 +13,8 @@ const FAQ: [string, string][] = [
   ["Which blockchain is used?", "Ethereum. Testing happens first on the Sepolia test network; the public collection will be on Ethereum mainnet."],
   ["How do I view my NFT on OpenSea?", "After minting, the success screen links to your Oddity on OpenSea. You can also visit OpenSea, connect the same wallet and look under your profile. It can take a few minutes for new mints to appear."],
   ["What is the roadmap?", "The roadmap lists what we're working on and plan to explore, with an honest status for each item: Planned, In progress or Completed. Later phases are intentions, not guarantees, and will be shaped by community feedback."],
-  ["What happens after minting?", "Your Oddity is revealed instantly — no waiting. It lives in your wallet, and you can view it on this site and on marketplaces. Holders can take part in polls, character voting, contests and holder-only announcements."],
+  ["What happens after minting?", "Your Oddity arrives in your wallet straight away as a mystery Oddity. Every token is revealed together after the mint. Holders can take part in polls, character voting, contests and holder-only announcements."],
+  ["How does the reveal work — and why is it fair?", "Before minting starts we publish a 'provenance hash': a fingerprint of all 10,000 images in their planned order, locked into the smart contract. After the mint, the contract picks a random starting point from a future Ethereum block, which nobody (not even the team) can predict or choose. That decides which character each token number becomes. Anyone can re-check the fingerprint and the starting point afterwards, so no one can grab the rare ones early or swap art later."],
   ["Is this an investment?", "No. Little Oddities are digital collectibles. We make no promises about price, value or returns. Please only spend what you're comfortable spending on a collectible."],
   ["Do I own the copyright to my Oddity's art?", "Buying an NFT does not transfer copyright. You get the rights described in our NFT holder license — read it on the License page."],
 ];
@@ -31,7 +32,7 @@ export default function FaqPage() {
           </details>
         ))}
       </div>
-      <p className="mt-8 text-sm opacity-70">Official launch target: November 1, 2027 ({site.launchTz}). Dates may change if anything isn&apos;t ready — we&apos;ll always say so publicly.</p>
+      <p className="mt-8 text-sm opacity-70">Official launch target: November 3, 2027 ({site.launchTz}). Dates may change if anything isn&apos;t ready — we&apos;ll always say so publicly.</p>
     </div>
   );
 }

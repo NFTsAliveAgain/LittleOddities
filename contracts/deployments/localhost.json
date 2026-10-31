@@ -2,13 +2,13 @@
   "network": "localhost",
   "chainId": 31337,
   "address": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
-  "txHash": "0x203fe098f64d127211b56a23dc634c8136588189158ab0ea4acb4eb0ea6ffc7d",
+  "txHash": "0xd82886d753cf072057bd80c6ff9414a538a1e552e21b7c44ccb7259e00bc8079",
   "args": [
     "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-    "ipfs://__METADATA_CID__/",
+    "ipfs://__HIDDEN_CID__/hidden.json",
     "ipfs://x",
     10,
     500
   ],
-  "deployedAt": "2026-10-30T22:30:10.959Z"
+  "deployedAt": "2026-10-31T19:42:16.214Z"
 }

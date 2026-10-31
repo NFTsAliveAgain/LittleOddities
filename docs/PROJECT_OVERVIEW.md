@@ -4,7 +4,7 @@
 **NFTs Alive Again** is a brand and community whose mission is to make NFTs fun again. Its first
 collection, **Little Oddities**, is 10,000 original cartoon characters on Ethereum. Minting costs
 **0.005 ETH** (plus gas), up to **4 per transaction**, with **500 reserved** for community
-giveaways. Everything is instantly revealed. The official target launch is **November 1, 2027**.
+giveaways. Tokens are revealed together after the mint using provable on-chain randomness. The official target launch is **November 3, 2027**.
 
 ## How the pieces fit together
 ```
@@ -38,13 +38,16 @@ giveaways. Everything is instantly revealed. The official target launch is **Nov
 - Contract: [SMART_CONTRACT_GUIDE](SMART_CONTRACT_GUIDE.md), [DEPLOYMENT_GUIDE](DEPLOYMENT_GUIDE.md)
 - Website & admin: [WEBSITE_GUIDE](WEBSITE_GUIDE.md), [ADMIN_GUIDE](ADMIN_GUIDE.md), [COMMUNITY_GUIDE](COMMUNITY_GUIDE.md)
 - Storage & marketplaces: [IPFS_GUIDE](IPFS_GUIDE.md), [OPENSEA_GUIDE](OPENSEA_GUIDE.md)
-- Launch: [ROADMAP](ROADMAP.md), [NOVEMBER_1_2027_LAUNCH_PLAN](NOVEMBER_1_2027_LAUNCH_PLAN.md), [LAUNCH_CHECKLIST](LAUNCH_CHECKLIST.md)
+- Launch: [ROADMAP](ROADMAP.md), [NOVEMBER_3_2027_LAUNCH_PLAN](NOVEMBER_3_2027_LAUNCH_PLAN.md), [LAUNCH_CHECKLIST](LAUNCH_CHECKLIST.md)
 - Safety & ownership: [SECURITY_CHECKLIST](SECURITY_CHECKLIST.md), [OWNERSHIP_AND_RIGHTS](OWNERSHIP_AND_RIGHTS.md), [MAINTENANCE_GUIDE](MAINTENANCE_GUIDE.md)
 
-## Decisions waiting on the founder
-1. **Artist:** confirm rights + AI-use answers, get a quote for production layers (see ARTIST_LAYER_SPEC).
-2. **Lifetime wallet limit:** proposed default **10** per wallet. Confirm or change before deployment.
-3. **Royalty:** proposed **5%** (ERC-2981; marketplaces may not enforce it).
-4. **Launch time of day:** proposed **12:00 PM New York time (EDT)**, Nov 1, 2027.
-5. **Rarity sniping with instant reveal:** see SMART_CONTRACT_GUIDE → "Known trade-offs".
-6. **Allowlist criteria and size.**
+## Founder decisions (Oct 31, 2026)
+- Lifetime wallet limit: **10** · Royalty: **5%** · 500 reserve → **founder's own wallet**
+- Launch: **Wednesday Nov 3, 2027, 12:00 PM New York time (EDT)**
+- **Delayed reveal** with provenance + on-chain randomness (replaces instant reveal)
+
+## Still waiting on the founder
+1. **Artist:** rights + AI-use answers, quote for production layers (ARTIST_LAYER_SPEC).
+2. **Owner wallet public address** (needed before any deployment).
+3. **Reveal timing:** proposed at sell-out or 48h after public mint opens, whichever first.
+4. **Allowlist criteria and size.**

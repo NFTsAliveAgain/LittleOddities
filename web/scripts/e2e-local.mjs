@@ -67,11 +67,14 @@ ok(v.status === 403, "non-holder cannot vote in holder-only poll");
 
 // --- mint on-chain (owner opens public mint; fan mints 2 at exact price)
 const C = { address: ADDR, abi };
-await pub.waitForTransactionReceipt({ hash: await wallet(owner).writeContract({ ...C, functionName: "setPublicActive", args: [true] }) });
+const send = async (w, fn, args = [], value) => pub.waitForTransactionReceipt({ hash: await wallet(w).writeContract({ ...C, functionName: fn, args, value }) });
+await send(owner, "setProvenanceHash", ["e".repeat(64)]);
+await send(owner, "setPublicActive", [true]);
 const tx = await wallet(fan).writeContract({ ...C, functionName: "publicMint", args: [2n], value: parseEther("0.01") });
 const rc = await pub.waitForTransactionReceipt({ hash: tx });
 ok(rc.status === "success", "fan mints 2 for exactly 0.010 ETH");
-ok((await pub.readContract({ ...C, functionName: "tokenURI", args: [1n] })) === "ipfs://__METADATA_CID__/1.json", "tokenURI points at metadata file");
+ok((await pub.readContract({ ...C, functionName: "tokenURI", args: [1n] })) === "ipfs://__HIDDEN_CID__/hidden.json", "before reveal, tokens show the mystery metadata");
+try { await send(owner, "setProvenanceHash", ["f".repeat(64)]); ok(false, "provenance locked"); } catch { ok(true, "provenance hash locked after first mint"); }
 try { await wallet(fan).writeContract({ ...C, functionName: "publicMint", args: [1n], value: parseEther("0.006") }); ok(false, "overpayment rejected"); }
 catch { ok(true, "overpayment rejected on-chain"); }
 
@@ -90,6 +93,16 @@ const sug = (await admin.req("/api/admin/suggestions")).body.rows[0];
 await admin.req("/api/admin/suggestions", { method: "PATCH", body: JSON.stringify({ id: sug.id, status: "approved" }) });
 ok((await (await fetch(BASE + "/community")).text()).includes("sleepy axolotl"), "approved suggestion appears publicly");
 ok((await admin.req("/api/admin/audit_log")).body.rows.length > 5, "admin actions recorded in audit log");
+
+// --- reveal
+await send(owner, "commitReveal");
+await fetch("http://127.0.0.1:8545", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "hardhat_mine", params: ["0x2"] }) });
+await send(fan, "finalizeReveal"); // anyone can finalize
+const idx = await pub.readContract({ ...C, functionName: "startingIndex" });
+ok(idx > 0n && idx < 10000n, `starting index set by on-chain randomness (${idx})`);
+await send(owner, "reveal", ["ipfs://bafyFINALTEST/"]);
+ok((await pub.readContract({ ...C, functionName: "tokenURI", args: [2n] })) === "ipfs://bafyFINALTEST/2.json", "after reveal, tokens point at final per-token metadata");
+ok((await pub.readContract({ ...C, functionName: "characterOf", args: [1n] })) === ((idx) % 10000n) + 1n, "characterOf matches the published formula");
 
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

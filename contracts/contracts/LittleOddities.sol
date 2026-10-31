@@ -10,7 +10,17 @@ import {MerkleProof} from "@openzeppelin/contracts/utils/cryptography/MerkleProo
 import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 
 /// @title Little Oddities — NFTs Alive Again
-/// @notice 10,000 instantly-revealed ERC-721 collectibles.
+/// @notice 10,000 ERC-721 collectibles with a fair, provable delayed reveal.
+///
+/// Reveal design (prevents rarity sniping):
+///  1. Before minting, the owner publishes `provenanceHash` = SHA-256 fingerprint of all
+///     10,000 images in their planned order. It locks as soon as the first token is minted.
+///  2. While unrevealed, every token points to the same "mystery" metadata.
+///  3. `commitReveal()` (owner) picks a FUTURE block; `finalizeReveal()` (anyone) then derives
+///     `startingIndex` from that block's hash. Nobody can know it in advance.
+///     Token N shows planned character ((N - 1 + startingIndex) % 10000) + 1.
+///  4. `reveal(baseURI)` (owner) points tokens at the final metadata. Anyone can check that
+///     the final art matches the provenance hash and the on-chain startingIndex.
 ///
 /// Every owner power is listed in docs/SMART_CONTRACT_GUIDE.md. There are no
 /// hidden roles. The owner can NOT mint beyond the one-time 500 reserve, can
@@ -38,6 +48,12 @@ contract LittleOddities is ERC721, ERC2981, Ownable2Step, ReentrancyGuard {
     mapping(address => uint256) public allowlistMintedBy;
 
     string private _baseTokenURI;
+    string private _unrevealedURI;
+    string public provenanceHash;
+    uint256 public startingIndexBlock;
+    uint256 public startingIndex;
+    bool public startingIndexSet;
+    bool public revealed;
     string private _contractURI;
 
     // ---------------------------------------------------------------- events
@@ -49,6 +65,11 @@ contract LittleOddities is ERC721, ERC2981, Ownable2Step, ReentrancyGuard {
     event ReserveMinted(address indexed to, uint256 firstTokenId, uint256 lastTokenId);
     event Minted(address indexed to, uint256 firstTokenId, uint256 quantity, bool allowlist, uint256 paid);
     event BaseURIUpdated(string uri);
+    event UnrevealedURIUpdated(string uri);
+    event ProvenanceHashSet(string provenanceHash);
+    event RevealCommitted(uint256 startingIndexBlock);
+    event StartingIndexSet(uint256 startingIndex);
+    event Revealed(string baseURI);
     event ContractURIUpdated(string uri);
     event MetadataFrozen();
     event RoyaltyUpdated(address receiver, uint96 bps);
@@ -64,6 +85,16 @@ contract LittleOddities is ERC721, ERC2981, Ownable2Step, ReentrancyGuard {
     error InvalidProof();
     error ReserveAlreadyMinted();
     error MetadataIsFrozen();
+    error ProvenanceLocked();
+    error ProvenanceMissing();
+    error RevealAlreadyCommitted();
+    error RevealNotCommitted();
+    error RevealBlockNotReached();
+    error RevealCommitExpired();
+    error StartingIndexAlreadySet();
+    error StartingIndexNotSet();
+    error AlreadyRevealed();
+    error NotRevealed();
     error RoyaltyTooHigh();
     error NothingToWithdraw();
     error WithdrawFailed();
@@ -71,13 +102,13 @@ contract LittleOddities is ERC721, ERC2981, Ownable2Step, ReentrancyGuard {
 
     constructor(
         address initialOwner,
-        string memory baseURI_,
+        string memory unrevealedURI_,
         string memory contractURI_,
         uint256 walletLimit_,
         uint96 royaltyBps_
     ) ERC721("Little Oddities", "ODDITY") Ownable(initialOwner) {
         if (royaltyBps_ > MAX_ROYALTY_BPS) revert RoyaltyTooHigh();
-        _baseTokenURI = baseURI_;
+        _unrevealedURI = unrevealedURI_;
         _contractURI = contractURI_;
         walletLimit = walletLimit_;
         _setDefaultRoyalty(initialOwner, royaltyBps_);
@@ -165,7 +196,64 @@ contract LittleOddities is ERC721, ERC2981, Ownable2Step, ReentrancyGuard {
         emit PublicActiveSet(active);
     }
 
+    // ================================================================ reveal
+
+    /// @notice Publish the provenance fingerprint. Only possible before the first token is minted.
+    function setProvenanceHash(string calldata hash_) external onlyOwner {
+        if (totalSupply > 0) revert ProvenanceLocked();
+        provenanceHash = hash_;
+        emit ProvenanceHashSet(hash_);
+    }
+
+    function setUnrevealedURI(string calldata uri) external onlyOwner {
+        if (revealed) revert AlreadyRevealed();
+        _unrevealedURI = uri;
+        emit UnrevealedURIUpdated(uri);
+    }
+
+    /// @notice Step 1 of the reveal: choose the next block as the randomness source.
+    ///         If finalizeReveal is not called within 256 blocks, the owner may commit again.
+    function commitReveal() external onlyOwner {
+        if (bytes(provenanceHash).length == 0) revert ProvenanceMissing();
+        if (startingIndexSet) revert StartingIndexAlreadySet();
+        if (startingIndexBlock != 0 && block.number <= startingIndexBlock + 256) revert RevealAlreadyCommitted();
+        startingIndexBlock = block.number + 1;
+        emit RevealCommitted(startingIndexBlock);
+    }
+
+    /// @notice Step 2 of the reveal: anyone can call this once the committed block exists.
+    function finalizeReveal() external {
+        if (startingIndexSet) revert StartingIndexAlreadySet();
+        if (startingIndexBlock == 0) revert RevealNotCommitted();
+        if (block.number <= startingIndexBlock) revert RevealBlockNotReached();
+        bytes32 h = blockhash(startingIndexBlock);
+        if (h == bytes32(0)) revert RevealCommitExpired(); // older than 256 blocks: owner commits again
+        uint256 idx = uint256(keccak256(abi.encodePacked(h, block.prevrandao, address(this)))) % MAX_SUPPLY;
+        if (idx == 0) idx = 1; // always shift, so token N never simply equals planned character N
+        startingIndex = idx;
+        startingIndexSet = true;
+        emit StartingIndexSet(idx);
+    }
+
+    /// @notice Step 3: point every token at its final metadata (generated using startingIndex).
+    function reveal(string calldata baseURI_) external onlyOwner {
+        if (!startingIndexSet) revert StartingIndexNotSet();
+        if (revealed) revert AlreadyRevealed();
+        revealed = true;
+        _baseTokenURI = baseURI_;
+        emit Revealed(baseURI_);
+    }
+
+    /// @notice Planned character number shown by a token after reveal.
+    function characterOf(uint256 tokenId) external view returns (uint256) {
+        _requireOwned(tokenId);
+        if (!startingIndexSet) revert StartingIndexNotSet();
+        return ((tokenId - 1 + startingIndex) % MAX_SUPPLY) + 1;
+    }
+
+    /// @notice Fix the final metadata location after reveal (until frozen).
     function setBaseURI(string calldata uri) external onlyOwner {
+        if (!revealed) revert NotRevealed();
         if (metadataFrozen) revert MetadataIsFrozen();
         _baseTokenURI = uri;
         emit BaseURIUpdated(uri);
@@ -178,6 +266,7 @@ contract LittleOddities is ERC721, ERC2981, Ownable2Step, ReentrancyGuard {
 
     /// @notice Permanently locks token metadata. Cannot be undone.
     function freezeMetadata() external onlyOwner {
+        if (!revealed) revert NotRevealed();
         metadataFrozen = true;
         emit MetadataFrozen();
     }
@@ -207,6 +296,7 @@ contract LittleOddities is ERC721, ERC2981, Ownable2Step, ReentrancyGuard {
 
     function tokenURI(uint256 tokenId) public view override returns (string memory) {
         _requireOwned(tokenId);
+        if (!revealed) return _unrevealedURI;
         return string.concat(_baseTokenURI, tokenId.toString(), ".json");
     }
 

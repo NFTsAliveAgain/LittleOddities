@@ -2,8 +2,8 @@ import "server-only";
 import fs from "node:fs";
 import path from "node:path";
 
-export type Token = { id: number; name: string; tier: string; traits: Record<string, string> };
-type Data = { engine: string; tokens: Token[]; stats: Record<string, Record<string, { tier: string; count: number }>> };
+export type Token = { id: number; character: number; name: string; tier: string; traits: Record<string, string> };
+type Data = { engine: string; revealed: boolean; startingIndex: number | null; tokens: Token[]; stats: Record<string, Record<string, { tier: string; count: number }>> };
 
 let cache: Data | null = null;
 export function collection(): Data {
@@ -33,6 +33,10 @@ export function search(opts: { q?: string; tier?: string; trait?: string; sort?:
   const page = Math.max(1, opts.page || 1);
   return { total: list.length, page, pages: Math.max(1, Math.ceil(list.length / per)), items: list.slice((page - 1) * per, page * per) };
 }
+
+/** Before reveal entries are characters ("Character 12"); after reveal they are tokens ("#12"). */
+export const isRevealed = () => collection().revealed;
+export const label = (id: number) => (collection().revealed ? `#${id}` : `Character ${id}`);
 
 export function token(id: number) {
   return collection().tokens.find((t) => t.id === id) || null;

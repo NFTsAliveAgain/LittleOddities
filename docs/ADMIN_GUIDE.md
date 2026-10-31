@@ -19,7 +19,7 @@ No passwords exist. To add a helper admin, add their public address to `ADMIN_AD
 | Giveaway winners | **After** sending the NFT, record wallet, token id and the real transaction hash (validated) |
 | Site settings & links | Discord / X / Instagram / YouTube URLs, welcome message, mint status note |
 | Audit log | Read-only record of every admin action |
-| Mint settings (on-chain) | Open/close allowlist + public mint, set price, wallet limit, allowlist root, mint the 500 reserve, withdraw |
+| Mint settings (on-chain) | Open/close allowlist + public mint, set price, wallet limit, allowlist root, mint the 500 reserve, withdraw, **delayed reveal** (provenance → commit → finalize → reveal) |
 
 ## The 500 giveaway NFTs — workflow
 1. After deployment, Mint settings → **Mint 500 reserve** (one time; costs ≈12.6M gas — do it when gas is low).
@@ -28,6 +28,12 @@ No passwords exist. To add a helper admin, add their public address to `ADMIN_AD
 4. Send each NFT from the owner wallet (OpenSea "Transfer" or your wallet's NFT send).
 5. Record each winner with the transaction hash. The public page links to Etherscan as proof.
 Never record a winner before the transfer has happened.
+
+## The reveal (after the mint)
+1. Before minting opens: Mint settings → paste the provenance hash → **Set provenance**.
+2. When it's reveal time: **1 · Commit reveal**. Wait about a minute. **2 · Finalize** (must be within ~50 minutes).
+3. Note the starting index shown. Ask Claude/your developer to run `ipfs_upload.py metadata --starting-index N` and give you the `ipfs://…/` address.
+4. Paste it and press **3 · Reveal**. Then in `web`, run `STARTING_INDEX=N npm run collection:sync` and redeploy the site so the gallery switches to token numbers.
 
 ## On-chain actions
 Each button sends a real transaction from the connected owner wallet; a confirmation dialog explains it first,

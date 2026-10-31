@@ -6,7 +6,7 @@ import StatusBadge from "@/components/StatusBadge";
 import TierBadge from "@/components/TierBadge";
 import SocialLinks from "@/components/SocialLinks";
 import { getRoadmap, getSettings, giveawayTotals } from "@/lib/content";
-import { collection } from "@/lib/collection";
+import { collection, label } from "@/lib/collection";
 import { site, tiers } from "@/lib/site";
 import { contractReady } from "@/lib/contract";
 
@@ -41,8 +41,8 @@ export default async function Home() {
           <div className="grid grid-cols-3 gap-3 rotate-1">
             {showcase.map((t, i) => (
               <Link key={t.id} href={`/collection/${t.id}`} className={`card overflow-hidden text-ink ${i === 0 ? "col-span-2 row-span-2" : ""}`}>
-                <OddityArt id={t.id} species={t.traits.Species} tier={t.tier} />
-                <div className="p-2 flex items-center justify-between gap-2 text-sm"><span className="font-bold truncate">#{t.id}</span><TierBadge tier={t.tier} /></div>
+                <OddityArt character={t.character} species={t.traits.Species} tier={t.tier} />
+                <div className="p-2 flex items-center justify-between gap-2 text-sm"><span className="font-bold truncate">{label(t.id)}</span><TierBadge tier={t.tier} /></div>
               </Link>
             ))}
           </div>

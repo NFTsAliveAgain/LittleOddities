@@ -4,13 +4,15 @@ const { loadFixture } = require("@nomicfoundation/hardhat-toolbox/network-helper
 const { StandardMerkleTree } = require("@openzeppelin/merkle-tree");
 
 const PRICE = ethers.parseEther("0.005");
-const BASE = "ipfs://bafyTESTONLY/";
+const HIDDEN = "ipfs://bafyHIDDEN/hidden.json";
+const BASE = "ipfs://bafyFINAL/";
+const PROV = "a".repeat(64);
 
 describe("LittleOddities", function () {
   async function deploy() {
     const [owner, alice, bob, carol, mallory] = await ethers.getSigners();
     const F = await ethers.getContractFactory("LittleOddities");
-    const c = await F.deploy(owner.address, BASE, "ipfs://bafyTESTONLY/collection.json", 10, 500);
+    const c = await F.deploy(owner.address, HIDDEN, "ipfs://bafyTESTONLY/collection.json", 10, 500);
     const tree = StandardMerkleTree.of([[alice.address, "3"], [bob.address, "8"]], ["address", "uint256"]);
     return { c, owner, alice, bob, carol, mallory, tree };
   }
@@ -85,24 +87,17 @@ describe("LittleOddities", function () {
   });
 
   describe("sequential ids and metadata", function () {
-    it("mints sequential ids starting at 1 with correct tokenURI", async function () {
+    it("mints sequential ids starting at 1; unrevealed tokens show the mystery metadata", async function () {
       const { c, alice, bob } = await loadFixture(deployLive);
       await expect(c.connect(alice).publicMint(2, { value: PRICE * 2n })).to.emit(c, "Minted").withArgs(alice.address, 1, 2, false, PRICE * 2n);
       await c.connect(bob).publicMint(1, { value: PRICE });
       expect(await c.ownerOf(1)).to.equal(alice.address);
       expect(await c.ownerOf(2)).to.equal(alice.address);
       expect(await c.ownerOf(3)).to.equal(bob.address);
-      expect(await c.tokenURI(3)).to.equal(BASE + "3.json");
+      expect(await c.tokenURI(1)).to.equal(HIDDEN);
+      expect(await c.tokenURI(3)).to.equal(HIDDEN);
       expect(await c.totalSupply()).to.equal(3n);
       await expect(c.tokenURI(4)).to.be.revertedWithCustomError(c, "ERC721NonexistentToken");
-    });
-    it("base URI can be updated until frozen, then never again", async function () {
-      const { c, alice } = await loadFixture(deployLive);
-      await c.connect(alice).publicMint(1, { value: PRICE });
-      await expect(c.setBaseURI("ipfs://bafyNEW/")).to.emit(c, "BaseURIUpdated");
-      expect(await c.tokenURI(1)).to.equal("ipfs://bafyNEW/1.json");
-      await expect(c.freezeMetadata()).to.emit(c, "MetadataFrozen");
-      await expect(c.setBaseURI("ipfs://other/")).to.be.revertedWithCustomError(c, "MetadataIsFrozen");
     });
     it("supports ERC-721 and ERC-2981 interfaces with a capped royalty", async function () {
       const { c, owner } = await loadFixture(deploy);
@@ -112,6 +107,84 @@ describe("LittleOddities", function () {
       expect(recv).to.equal(owner.address);
       expect(amt).to.equal(500n);
       await expect(c.setRoyalty(owner.address, 1001)).to.be.revertedWithCustomError(c, "RoyaltyTooHigh");
+    });
+  });
+
+  describe("delayed reveal (provable, fair)", function () {
+    async function minted() {
+      const f = await deployLive();
+      await f.c.setProvenanceHash(PROV);
+      await f.c.connect(f.alice).publicMint(3, { value: PRICE * 3n });
+      return f;
+    }
+    async function commitAndFinalize(c, who) {
+      await c.commitReveal();
+      await ethers.provider.send("evm_mine", []);
+      await ethers.provider.send("evm_mine", []);
+      await c.connect(who).finalizeReveal();
+    }
+    it("provenance can be set before minting and locks after the first mint", async function () {
+      const { c, alice } = await loadFixture(deployLive);
+      await expect(c.setProvenanceHash(PROV)).to.emit(c, "ProvenanceHashSet").withArgs(PROV);
+      await c.connect(alice).publicMint(1, { value: PRICE });
+      await expect(c.setProvenanceHash("b".repeat(64))).to.be.revertedWithCustomError(c, "ProvenanceLocked");
+      expect(await c.provenanceHash()).to.equal(PROV);
+    });
+    it("cannot commit a reveal without a provenance hash", async function () {
+      const { c } = await loadFixture(deployLive);
+      await expect(c.commitReveal()).to.be.revertedWithCustomError(c, "ProvenanceMissing");
+    });
+    it("full reveal: commit (owner) -> finalize (anyone) -> reveal (owner)", async function () {
+      const { c, alice, mallory } = await loadFixture(minted);
+      await expect(c.connect(mallory).commitReveal()).to.be.revertedWithCustomError(c, "OwnableUnauthorizedAccount");
+      await expect(c.finalizeReveal()).to.be.revertedWithCustomError(c, "RevealNotCommitted");
+      await expect(c.commitReveal()).to.emit(c, "RevealCommitted");
+      await expect(c.connect(mallory).finalizeReveal()).to.be.revertedWithCustomError(c, "RevealBlockNotReached");
+      await ethers.provider.send("evm_mine", []);
+      await ethers.provider.send("evm_mine", []);
+      await expect(c.connect(mallory).finalizeReveal()).to.emit(c, "StartingIndexSet"); // anyone may finalize
+      const idx = await c.startingIndex();
+      expect(idx).to.be.greaterThan(0n);
+      expect(idx).to.be.lessThan(10000n);
+      expect(await c.characterOf(1)).to.equal(idx + 1n);
+      await expect(c.finalizeReveal()).to.be.revertedWithCustomError(c, "StartingIndexAlreadySet");
+      expect(await c.tokenURI(1)).to.equal(HIDDEN); // still hidden until reveal()
+      await expect(c.connect(mallory).reveal(BASE)).to.be.revertedWithCustomError(c, "OwnableUnauthorizedAccount");
+      await expect(c.reveal(BASE)).to.emit(c, "Revealed").withArgs(BASE);
+      expect(await c.tokenURI(2)).to.equal(BASE + "2.json");
+      await expect(c.reveal(BASE)).to.be.revertedWithCustomError(c, "AlreadyRevealed");
+      await expect(c.setUnrevealedURI("x")).to.be.revertedWithCustomError(c, "AlreadyRevealed");
+    });
+    it("characterOf maps every token to a distinct character (a rotation)", async function () {
+      const { c, alice } = await loadFixture(minted);
+      await commitAndFinalize(c, alice);
+      const idx = await c.startingIndex();
+      const wrap = (n) => ((n - 1n + idx) % 10000n) + 1n;
+      for (const t of [1n, 2n, 3n]) expect(await c.characterOf(t)).to.equal(wrap(t));
+    });
+    it("reveal cannot happen before the starting index exists", async function () {
+      const { c } = await loadFixture(minted);
+      await expect(c.reveal(BASE)).to.be.revertedWithCustomError(c, "StartingIndexNotSet");
+      await expect(c.characterOf(1)).to.be.revertedWithCustomError(c, "StartingIndexNotSet");
+    });
+    it("an expired commit (>256 blocks) can be re-committed, not finalized", async function () {
+      const { c } = await loadFixture(minted);
+      await c.commitReveal();
+      await expect(c.commitReveal()).to.be.revertedWithCustomError(c, "RevealAlreadyCommitted");
+      await ethers.provider.send("hardhat_mine", ["0x110"]); // 272 blocks
+      await expect(c.finalizeReveal()).to.be.revertedWithCustomError(c, "RevealCommitExpired");
+      await expect(c.commitReveal()).to.emit(c, "RevealCommitted");
+    });
+    it("base URI is only editable after reveal and until frozen", async function () {
+      const { c, alice } = await loadFixture(minted);
+      await expect(c.setBaseURI("ipfs://x/")).to.be.revertedWithCustomError(c, "NotRevealed");
+      await expect(c.freezeMetadata()).to.be.revertedWithCustomError(c, "NotRevealed");
+      await commitAndFinalize(c, alice);
+      await c.reveal(BASE);
+      await expect(c.setBaseURI("ipfs://bafyFIX/")).to.emit(c, "BaseURIUpdated");
+      expect(await c.tokenURI(1)).to.equal("ipfs://bafyFIX/1.json");
+      await expect(c.freezeMetadata()).to.emit(c, "MetadataFrozen");
+      await expect(c.setBaseURI("ipfs://other/")).to.be.revertedWithCustomError(c, "MetadataIsFrozen");
     });
   });
 
@@ -199,6 +272,7 @@ describe("LittleOddities", function () {
         () => m.setMintPrice(1), () => m.setWalletLimit(1), () => m.setMerkleRoot(ethers.ZeroHash),
         () => m.setAllowlistActive(true), () => m.setPublicActive(true), () => m.setBaseURI("x"),
         () => m.setContractURI("x"), () => m.freezeMetadata(), () => m.setRoyalty(mallory.address, 1),
+        () => m.setProvenanceHash("x"), () => m.setUnrevealedURI("x"), () => m.commitReveal(), () => m.reveal("x"),
         () => m.withdraw(), () => m.mintReserve(), () => m.transferOwnership(mallory.address),
       ]) {
         await expect(call()).to.be.revertedWithCustomError(c, "OwnableUnauthorizedAccount");

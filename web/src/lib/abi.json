@@ -8,7 +8,7 @@
       },
       {
         "internalType": "string",
-        "name": "baseURI_",
+        "name": "unrevealedURI_",
         "type": "string"
       },
       {
@@ -29,6 +29,11 @@
     ],
     "stateMutability": "nonpayable",
     "type": "constructor"
+  },
+  {
+    "inputs": [],
+    "name": "AlreadyRevealed",
+    "type": "error"
   },
   {
     "inputs": [
@@ -229,6 +234,11 @@
   },
   {
     "inputs": [],
+    "name": "NotRevealed",
+    "type": "error"
+  },
+  {
+    "inputs": [],
     "name": "NothingToWithdraw",
     "type": "error"
   },
@@ -256,6 +266,16 @@
   },
   {
     "inputs": [],
+    "name": "ProvenanceLocked",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "ProvenanceMissing",
+    "type": "error"
+  },
+  {
+    "inputs": [],
     "name": "ReentrancyGuardReentrantCall",
     "type": "error"
   },
@@ -271,12 +291,42 @@
   },
   {
     "inputs": [],
+    "name": "RevealAlreadyCommitted",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "RevealBlockNotReached",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "RevealCommitExpired",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "RevealNotCommitted",
+    "type": "error"
+  },
+  {
+    "inputs": [],
     "name": "RoyaltyTooHigh",
     "type": "error"
   },
   {
     "inputs": [],
     "name": "SaleNotActive",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "StartingIndexAlreadySet",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "StartingIndexNotSet",
     "type": "error"
   },
   {
@@ -507,6 +557,19 @@
     "inputs": [
       {
         "indexed": false,
+        "internalType": "string",
+        "name": "provenanceHash",
+        "type": "string"
+      }
+    ],
+    "name": "ProvenanceHashSet",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
         "internalType": "bool",
         "name": "active",
         "type": "bool"
@@ -545,6 +608,32 @@
     "inputs": [
       {
         "indexed": false,
+        "internalType": "uint256",
+        "name": "startingIndexBlock",
+        "type": "uint256"
+      }
+    ],
+    "name": "RevealCommitted",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "baseURI",
+        "type": "string"
+      }
+    ],
+    "name": "Revealed",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
         "internalType": "address",
         "name": "receiver",
         "type": "address"
@@ -557,6 +646,19 @@
       }
     ],
     "name": "RoyaltyUpdated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "startingIndex",
+        "type": "uint256"
+      }
+    ],
+    "name": "StartingIndexSet",
     "type": "event"
   },
   {
@@ -582,6 +684,19 @@
       }
     ],
     "name": "Transfer",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "uri",
+        "type": "string"
+      }
+    ],
+    "name": "UnrevealedURIUpdated",
     "type": "event"
   },
   {
@@ -774,6 +889,32 @@
     "type": "function"
   },
   {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "tokenId",
+        "type": "uint256"
+      }
+    ],
+    "name": "characterOf",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "commitReveal",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
     "inputs": [],
     "name": "contractURI",
     "outputs": [
@@ -784,6 +925,13 @@
       }
     ],
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "finalizeReveal",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -961,6 +1109,19 @@
   },
   {
     "inputs": [],
+    "name": "provenanceHash",
+    "outputs": [
+      {
+        "internalType": "string",
+        "name": "",
+        "type": "string"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
     "name": "publicActive",
     "outputs": [
       {
@@ -1008,6 +1169,32 @@
   {
     "inputs": [],
     "name": "reserveMinted",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "string",
+        "name": "baseURI_",
+        "type": "string"
+      }
+    ],
+    "name": "reveal",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "revealed",
     "outputs": [
       {
         "internalType": "bool",
@@ -1184,6 +1371,19 @@
   {
     "inputs": [
       {
+        "internalType": "string",
+        "name": "hash_",
+        "type": "string"
+      }
+    ],
+    "name": "setProvenanceHash",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "bool",
         "name": "active",
         "type": "bool"
@@ -1215,6 +1415,19 @@
   {
     "inputs": [
       {
+        "internalType": "string",
+        "name": "uri",
+        "type": "string"
+      }
+    ],
+    "name": "setUnrevealedURI",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "uint256",
         "name": "newLimit",
         "type": "uint256"
@@ -1223,6 +1436,45 @@
     "name": "setWalletLimit",
     "outputs": [],
     "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "startingIndex",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "startingIndexBlock",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "startingIndexSet",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
     "type": "function"
   },
   {

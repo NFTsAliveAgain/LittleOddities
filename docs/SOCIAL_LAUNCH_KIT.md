@@ -5,7 +5,7 @@ Graphics: `brand/banners/`, `brand/social/`.
 
 ## X / Twitter
 **Name:** NFTs Alive Again · **Handle:** (to secure) · **Banner:** `x-banner-1500x500.png` · **Avatar:** `profile-400x400.png`
-**Bio:** Bringing NFTs Alive Again. 🌱 Home of Little Oddities — 10,000 wonderfully weird characters. Fun first. Community always. Launching 11.01.2027.
+**Bio:** Bringing NFTs Alive Again. 🌱 Home of Little Oddities — 10,000 wonderfully weird characters. Fun first. Community always. Launching 11.03.2027.
 
 ## Discord welcome message
 > Welcome to **NFTs Alive Again** 🌱 — home of the Little Oddities!
@@ -20,7 +20,7 @@ Graphics: `brand/banners/`, `brand/social/`.
 
 **Collection announcement**
 > Meet the Little Oddities. 10,000 original characters from one wonderfully weird world — fuzzy ones, slimy ones, a few mushrooms, the occasional ghost.
-> 0.005 ETH · max 4 per transaction · instant reveal · target launch Nov 1, 2027.
+> 0.005 ETH · max 4 per transaction · fair on-chain reveal after mint · target launch Nov 3, 2027.
 
 **Allowlist announcement**
 > The Little Oddities allowlist is opening! Here's exactly how to earn a spot: [criteria]. No paid spots, no DMs — if someone offers to sell you one, it's a scam.
@@ -31,9 +31,15 @@ Graphics: `brand/banners/`, `brand/social/`.
 **Roadmap announcement**
 > Our roadmap is live — and honest. Every item says Planned, In progress or Completed, and we'll update it as we go. Later phases are plans we'll shape together. 👉 [link]/roadmap
 
+**Provenance announcement (before mint)**
+> Fairness check ✅ Our provenance hash is: [hash]. It's a fingerprint of all 10,000 Oddities in their planned order, locked in the contract before the first mint. After the reveal, anyone can verify nothing was swapped.
+
+**Reveal announcement**
+> The Oddities are waking up! 🌱 Reveal [date/time]. The contract picks a random starting point from a future Ethereum block — nobody, including us, knows who gets what until then.
+
 ## Countdown posts
 - 30 days: "30 days until the Oddities arrive. Which species are you hoping for? 🍄👻🐱"
-- 7 days: "One week. Allowlist folks — check your wallet on the mint page. Everyone else — see you Nov 1."
+- 7 days: "One week. Allowlist folks — check your wallet on the mint page. Everyone else — see you Nov 3."
 - 1 day: "Tomorrow at 12:00 PM ET. Official site only: [link]. We never DM first."
 - 1 hour: "One hour. Grab a snack, check your wallet's on Ethereum, and bring your weirdest energy."
 

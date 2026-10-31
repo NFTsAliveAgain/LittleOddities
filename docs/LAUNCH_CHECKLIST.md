@@ -1,6 +1,6 @@
 # Launch Checklist
 
-Tick every box before Nov 1, 2027. Any unticked **critical** item = recommend delay.
+Tick every box before Nov 3, 2027. Any unticked **critical** item = recommend delay.
 
 ## Art & metadata (critical)
 - [ ] All 138 artist layer files delivered (`python generate.py assets` → 138 / 138)
@@ -10,6 +10,8 @@ Tick every box before Nov 1, 2027. Any unticked **critical** item = recommend de
 - [ ] `python generate.py validate` → 0 problems; rarity exactly 5,000 / 3,000 / 1,500 / 400 / 100
 - [ ] Images + metadata uploaded; `python ipfs_upload.py verify --all` → 0 problems
 - [ ] Pinned on at least two services (Pinata + one backup)
+- [ ] Mystery metadata uploaded (`ipfs_upload.py hidden`) → `UNREVEALED_URI`
+- [ ] Provenance hash computed (`python3 provenance.py`) and published in the announcement
 
 ## Contract (critical)
 - [ ] 27/27 tests pass on the final commit
@@ -18,10 +20,13 @@ Tick every box before Nov 1, 2027. Any unticked **critical** item = recommend de
 - [ ] Founder written approval for mainnet; costs explained
 - [ ] Deployed, verified on Etherscan, owner = founder's owner wallet
 - [ ] `mintPrice` = 0.005 ETH, `MAX_PER_TX` = 4, wallet limit = agreed value
-- [ ] `tokenURI(1)` resolves to correct metadata and image
+- [ ] Provenance hash set on-chain **before** the first mint, matches `art/output/provenance.json`
+- [ ] Owner = founder's wallet (public address confirmed with founder)
+- [ ] `tokenURI(1)` shows the mystery metadata before reveal
 - [ ] 500 reserve minted to owner wallet
 - [ ] Allowlist root set and spot-checked with `allowlist.js check`
 - [ ] Public mint **closed** until the founder opens it
+- [ ] Reveal date announced; reveal rehearsed on Sepolia (commit → finalize → metadata → reveal → spot-check tokens)
 
 ## Sepolia rehearsal
 - [ ] Allowlist mint (eligible ✓, ineligible ✗, over-allocation ✗)
@@ -32,7 +37,7 @@ Tick every box before Nov 1, 2027. Any unticked **critical** item = recommend de
 
 ## Website
 - [ ] Production env vars set; contract address correct; `NEXT_PUBLIC_CHAIN=mainnet`
-- [ ] Countdown shows Nov 1, 2027 12:00 PM EDT (or agreed time)
+- [ ] Countdown shows Nov 3, 2027 12:00 PM EDT (or agreed time)
 - [ ] Mobile + desktop check of every page; no console errors
 - [ ] Legal pages reviewed by a lawyer (DRAFT banners removed only after review)
 - [ ] Social links set in admin; roadmap statuses accurate

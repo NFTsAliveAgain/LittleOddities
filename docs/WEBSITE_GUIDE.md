@@ -32,7 +32,7 @@ Public: chain, contract address, WalletConnect project id (free at cloud.reown.c
 Server-only: `ADMIN_ADDRESSES`, `SESSION_SECRET`, `DATABASE_URL`, `DATABASE_AUTH_TOKEN`.
 
 ## Launch timezone
-`NEXT_PUBLIC_LAUNCH_ISO=2027-11-01T12:00:00-04:00` and `NEXT_PUBLIC_LAUNCH_TZ=America/New_York`.
+`NEXT_PUBLIC_LAUNCH_ISO=2027-11-03T12:00:00-04:00` and `NEXT_PUBLIC_LAUNCH_TZ=America/New_York`.
 Visitors see the countdown in real time and the launch moment written in New York time.
 
 ## Tests

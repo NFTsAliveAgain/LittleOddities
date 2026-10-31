@@ -19,7 +19,7 @@ export default function MintPage() {
             <li>Make sure you&apos;re on {site.chain === "mainnet" ? "Ethereum" : "the Sepolia test network"}.</li>
             <li>Pick 1–4. The exact total is shown before you confirm.</li>
             <li>Confirm in your wallet. Your wallet shows the gas fee too.</li>
-            <li>Your Oddities are revealed instantly — no waiting.</li>
+            <li>Your Oddities start as mystery Oddities and are all revealed together after the mint — fairly, by on-chain randomness.</li>
           </ol>
         </div>
         <div className="card p-5">

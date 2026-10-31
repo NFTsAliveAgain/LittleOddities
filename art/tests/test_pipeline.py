@@ -82,5 +82,35 @@ class LayerTests(unittest.TestCase):
         self.assertFalse(qa["ok"])
 
 
+class RevealTests(unittest.TestCase):
+    def test_reveal_mapping_matches_contract_and_is_a_permutation(self):
+        import importlib.util
+        spec = importlib.util.spec_from_file_location("ipfs", Path(__file__).resolve().parent.parent / "ipfs_upload.py")
+        m = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(m)
+        for idx in (1, 4321, 9999):
+            chars = [m.character_for(t, idx) for t in range(1, 10001)]
+            self.assertEqual(sorted(chars), list(range(1, 10001)))  # every character used exactly once
+            self.assertEqual(chars[0], idx + 1)                      # same formula as characterOf()
+
+    def test_final_metadata_renumbers_names_and_links(self):
+        import importlib.util, json
+        spec = importlib.util.spec_from_file_location("ipfs", Path(__file__).resolve().parent.parent / "ipfs_upload.py")
+        m = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(m)
+        toks = plan_collection(CFG)
+        with tempfile.TemporaryDirectory() as d:
+            m.COL, m.IPFS_DIR, m.SUPPLY = Path(d) / "c", Path(d) / "i", 5
+            (m.COL / "metadata").mkdir(parents=True)
+            for t in toks[:5]:
+                (m.COL / "metadata" / f"{t['id']}.json").write_text(json.dumps(token_metadata(t, CFG)))
+            out = m.write_final_metadata("bafyIMAGES", 2)
+            j = json.loads((out / "1.json").read_text())        # token 1 -> character 3
+            self.assertTrue(j["name"].startswith("Little Oddities #1: "))
+            self.assertIn(toks[2]["name"], j["name"])
+            self.assertEqual(j["image"], "ipfs://bafyIMAGES/3.png")
+            self.assertEqual(j["attributes"][-1]["value"], 3)
+
+
 if __name__ == "__main__":
     unittest.main()

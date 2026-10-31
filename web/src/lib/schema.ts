@@ -65,7 +65,7 @@ export const SEED = [
   })),
   ...Object.entries({
     discord_url: "", x_url: "", instagram_url: "", youtube_url: "",
-    mint_status_note: "Minting is not open yet. Official launch target: November 1, 2027.",
+    mint_status_note: "Minting is not open yet. Official launch target: November 3, 2027.",
     welcome_message: "Welcome to the start of something weird and wonderful. This community is just getting started — and you're early.",
   }).map(([k, v]) => ({ sql: "INSERT OR IGNORE INTO settings (key, value) VALUES (?, ?)", args: [k, v] })),
 ];

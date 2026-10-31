@@ -45,12 +45,13 @@ export default function MintPanel() {
       { ...c, functionName: "publicActive" }, { ...c, functionName: "allowlistActive" }, { ...c, functionName: "walletLimit" },
       { ...c, functionName: "mintedBy", args: [address ?? "0x0000000000000000000000000000000000000000"] },
       { ...c, functionName: "allowlistMintedBy", args: [address ?? "0x0000000000000000000000000000000000000000"] },
+      { ...c, functionName: "revealed" },
     ],
     query: { enabled: Boolean(contractAddress), refetchInterval: 15000 },
   });
   const v = reads.data?.map((r) => r.result);
-  const [price, supply, remaining, publicActive, allowlistActive, walletLimit, minted, alMinted] =
-    (v || []) as [bigint?, bigint?, bigint?, boolean?, boolean?, bigint?, bigint?, bigint?];
+  const [price, supply, remaining, publicActive, allowlistActive, walletLimit, minted, alMinted, revealed] =
+    (v || []) as [bigint?, bigint?, bigint?, boolean?, boolean?, bigint?, bigint?, bigint?, boolean?];
 
   const useAllowlist = Boolean(allowlistActive && entry);
   const walletLeft = walletLimit !== undefined && minted !== undefined ? Number(walletLimit - minted) : 4;
@@ -89,7 +90,7 @@ export default function MintPanel() {
     return (
       <div className="card p-6">
         <h3 className="font-display font-black text-2xl">Minting isn&apos;t open yet</h3>
-        <p className="mt-2">The Little Oddities contract has not been deployed. Target launch: <strong>November 1, 2027</strong>.</p>
+        <p className="mt-2">The Little Oddities contract has not been deployed. Target launch: <strong>November 3, 2027</strong>.</p>
         <PriceTable />
       </div>
     );
@@ -103,11 +104,12 @@ export default function MintPanel() {
         <ul className="mt-4 grid gap-2">
           {mintedIds.map((id) => (
             <li key={id} className="flex flex-wrap gap-3 items-center">
-              <a className="font-bold underline" href={`/collection/${id}`}>#{id}</a>
+              {revealed ? <a className="font-bold underline" href={`/collection/${id}`}>#{id}</a> : <span className="font-bold">Token #{id} · mystery Oddity</span>}
               {openseaItem(id) && <a className="underline text-sm" href={openseaItem(id)} target="_blank" rel="noopener noreferrer">View on OpenSea (may take a few minutes to appear)</a>}
             </li>
           ))}
         </ul>
+        {!revealed && <p className="mt-3 text-sm">Your Oddities are in your wallet as mystery Oddities. Every token is revealed together after the mint, using on-chain randomness — follow our channels for the reveal date.</p>}
         <a className="mt-4 inline-block underline text-sm" href={`${explorer}/tx/${hash}`} target="_blank" rel="noopener noreferrer">View transaction on Etherscan</a>
         <div className="mt-6"><button className="btn bg-butter" onClick={() => { reset(); setQty(1); }}>Mint again</button></div>
       </div>

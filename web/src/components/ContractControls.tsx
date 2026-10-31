@@ -9,12 +9,14 @@ import { explorer } from "@/lib/site";
 export default function ContractControls() {
   const { address } = useAccount();
   const c = { address: contractAddress as `0x${string}`, abi: oddityAbi } as const;
-  const { data, refetch } = useReadContracts({ contracts: ["owner", "mintPrice", "walletLimit", "publicActive", "allowlistActive", "merkleRoot", "reserveMinted", "totalSupply", "metadataFrozen"]
+  const { data, refetch } = useReadContracts({ contracts: ["owner", "mintPrice", "walletLimit", "publicActive", "allowlistActive", "merkleRoot", "reserveMinted", "totalSupply", "metadataFrozen",
+    "provenanceHash", "startingIndexBlock", "startingIndexSet", "startingIndex", "revealed"]
     .map((f) => ({ ...c, functionName: f })), query: { enabled: Boolean(contractAddress) } });
-  const [owner, price, limit, pub, al, root, reserved, supply, frozen] = (data || []).map((d) => d.result) as [string, bigint, bigint, boolean, boolean, string, boolean, bigint, boolean];
+  const [owner, price, limit, pub, al, root, reserved, supply, frozen, prov, siBlock, siSet, si, revealed] = (data || []).map((d) => d.result) as
+    [string, bigint, bigint, boolean, boolean, string, boolean, bigint, boolean, string, bigint, boolean, bigint, boolean];
   const { writeContractAsync } = useWriteContract();
   const [msg, setMsg] = useState("");
-  const [inputs, setInputs] = useState({ price: "", limit: "", root: "" });
+  const [inputs, setInputs] = useState({ price: "", limit: "", root: "", prov: "", base: "" });
 
   if (!contractAddress) return <p className="card p-5">No contract configured yet. After deploying to Sepolia, set NEXT_PUBLIC_CONTRACT_ADDRESS (see docs/DEPLOYMENT_GUIDE.md).</p>;
   const isOwner = owner && address && owner.toLowerCase() === address.toLowerCase();
@@ -60,6 +62,37 @@ export default function ContractControls() {
           <button className="btn bg-white" onClick={() => act("Set allowlist Merkle root", "setMerkleRoot", [inputs.root])} disabled={!/^0x[0-9a-fA-F]{64}$/.test(inputs.root)}>Set root</button>
         </div>
         {msg && <p className="text-sm break-all" role="status">{msg}</p>}
+      </div>
+
+      <div className="card p-5 grid gap-3">
+        <h3 className="font-display font-black text-xl">Delayed reveal</h3>
+        <ol className="text-sm list-decimal pl-5 grid gap-1">
+          <li>Before minting opens: paste the provenance hash from <code>art/output/provenance.json</code> (locks at first mint).</li>
+          <li>After the mint: <b>Commit reveal</b>, wait ~1 minute, then <b>Finalize</b> (within ~50 minutes).</li>
+          <li>Generate final metadata with the starting index (<code>python ipfs_upload.py metadata --starting-index N</code>), then <b>Reveal</b> with its ipfs:// address.</li>
+        </ol>
+        <div className="text-sm grid sm:grid-cols-2 gap-2">
+          <div className="break-all">Provenance: <b>{prov || "not set"}</b></div>
+          <div>Commit block: <b>{siBlock ? siBlock.toString() : "—"}</b></div>
+          <div>Starting index: <b>{siSet ? si?.toString() : "not yet"}</b></div>
+          <div>Revealed: <b>{revealed ? "yes" : "no"}</b></div>
+        </div>
+        {!prov && (
+          <div className="flex flex-wrap gap-2 items-end">
+            <label className="text-sm font-bold grow">Provenance hash<input className="input mt-1" value={inputs.prov} onChange={(e) => setInputs({ ...inputs, prov: e.target.value })} placeholder="64 hex characters" /></label>
+            <button className="btn bg-white" disabled={!/^[0-9a-f]{64}$/.test(inputs.prov)} onClick={() => act("Publish the provenance hash (cannot be changed after the first mint)", "setProvenanceHash", [inputs.prov])}>Set provenance</button>
+          </div>
+        )}
+        <div className="flex flex-wrap gap-2">
+          {!siSet && <button className="btn bg-lilac" onClick={() => act("Commit the reveal (picks the next block as the randomness source)", "commitReveal")}>1 · Commit reveal</button>}
+          {!siSet && siBlock ? <button className="btn bg-lilac" onClick={() => act("Finalize the reveal (derives the starting index)", "finalizeReveal")}>2 · Finalize</button> : null}
+        </div>
+        {siSet && !revealed && (
+          <div className="flex flex-wrap gap-2 items-end">
+            <label className="text-sm font-bold grow">Final metadata base URI<input className="input mt-1" value={inputs.base} onChange={(e) => setInputs({ ...inputs, base: e.target.value })} placeholder="ipfs://<METADATA_CID>/" /></label>
+            <button className="btn bg-butter" disabled={!/^ipfs:\/\/.+\/$/.test(inputs.base)} onClick={() => act(`REVEAL the collection with ${inputs.base} (one time)`, "reveal", [inputs.base])}>3 · Reveal</button>
+          </div>
+        )}
       </div>
     </div>
   );

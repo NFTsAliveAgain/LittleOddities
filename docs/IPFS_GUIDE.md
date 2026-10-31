@@ -10,14 +10,17 @@ IPFS stores the images and metadata by content (a CID is a fingerprint of the fi
 
 ## Workflow (inside `art/`)
 ```bash
+python3 ipfs_upload.py hidden      # BEFORE deploy: mystery image + hidden.json -> UNREVEALED_URI
 python3 ipfs_upload.py check       # offline pre-flight: all files present, validated, no placeholders
-python3 ipfs_upload.py images      # uploads images folder -> records IMAGES_CID
-python3 ipfs_upload.py metadata    # writes final JSON with the real IMAGES_CID, uploads -> METADATA_CID
+python3 provenance.py              # provenance hash to publish on-chain before minting
+python3 ipfs_upload.py images      # uploads images (named by planned character) -> IMAGES_CID
+# ... mint happens, then on-chain reveal gives startingIndex N ...
+python3 ipfs_upload.py metadata --starting-index N   # per-token JSON with real IMAGES_CID -> METADATA_CID
 python3 ipfs_upload.py verify      # downloads a sample via gateway, compares checksums
 python3 ipfs_upload.py verify --all
 ```
 Everything is recorded in `art/output/ipfs/ipfs_record.json` (CIDs, timestamps, verification). Commit that file.
-The contract's baseURI = `ipfs://<METADATA_CID>/`.
+The owner then calls `reveal("ipfs://<METADATA_CID>/")`.
 
 ## Rules
 - Never type a CID by hand from memory; copy from `ipfs_record.json`.

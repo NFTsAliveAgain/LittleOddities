@@ -3,8 +3,12 @@
 
 Reproducible, three-step workflow. Each step records results in output/ipfs/ipfs_record.json.
 
+  0) python ipfs_upload.py hidden      uploads the mystery image + hidden.json -> UNREVEALED_URI (before deploy)
   1) python ipfs_upload.py images      uploads output/collection/images/ as ONE folder -> IMAGES_CID
-  2) python ipfs_upload.py metadata    writes metadata with the real IMAGES_CID, uploads it -> METADATA_CID
+     (images are named by planned character number; which token gets which is unknown until reveal)
+  2) python ipfs_upload.py metadata --starting-index N
+                                       AFTER the on-chain reveal: token T gets character ((T-1+N) % 10000)+1;
+                                       writes per-token metadata with the real IMAGES_CID, uploads -> METADATA_CID
   3) python ipfs_upload.py verify      fetches a sample (or --all) from a gateway and checks every file
 
   python ipfs_upload.py check          offline: validates folders & metadata before spending anything
@@ -95,14 +99,26 @@ def pin_folder(folder: Path, name: str, jwt: str) -> str:
     return cid
 
 
-def write_final_metadata(images_cid: str) -> Path:
+def character_for(token_id: int, starting_index: int) -> int:
+    """Same formula as the contract's characterOf()."""
+    return ((token_id - 1 + starting_index) % SUPPLY) + 1
+
+
+def write_final_metadata(images_cid: str, starting_index: int) -> Path:
+    if not 0 < starting_index < SUPPLY:
+        raise ValueError("starting index must come from the contract (1..9999)")
     out = IPFS_DIR / "metadata"
     out.mkdir(parents=True, exist_ok=True)
-    for i in range(1, SUPPLY + 1):
-        m = json.loads((COL / "metadata" / f"{i}.json").read_text())
-        m["image"] = m["image"].replace(PLACEHOLDER, images_cid)
-        # contract tokenURI = baseURI + id + ".json"
-        (out / f"{i}.json").write_text(json.dumps(m, ensure_ascii=False))
+    for t in range(1, SUPPLY + 1):
+        c = character_for(t, starting_index)
+        m = json.loads((COL / "metadata" / f"{c}.json").read_text())
+        m["name"] = m["name"].replace(f"#{c}:", f"#{t}:", 1)
+        m["image"] = f"ipfs://{images_cid}/{c}.png"
+        if "external_url" in m:
+            m["external_url"] = m["external_url"].rsplit("/", 1)[0] + f"/{t}"
+        m["attributes"] = m["attributes"] + [{"trait_type": "Character No.", "value": c, "display_type": "number"}]
+        # contract tokenURI = baseURI + tokenId + ".json"
+        (out / f"{t}.json").write_text(json.dumps(m, ensure_ascii=False))
     return out
 
 
@@ -124,11 +140,40 @@ def cmd_metadata(args):
     rec = load_record()
     if "images" not in rec:
         sys.exit("Upload images first (python ipfs_upload.py images).")
-    folder = write_final_metadata(rec["images"]["cid"])
+    if args.starting_index is None:
+        sys.exit("Pass --starting-index N, read from the contract after finalizeReveal (startingIndex()).")
+    folder = write_final_metadata(rec["images"]["cid"], args.starting_index)
     cid = pin_folder(folder, "little-oddities-metadata", jwt)
-    rec["metadata"] = {"cid": cid, "uploaded_at": datetime.now(timezone.utc).isoformat(), "base_uri": f"ipfs://{cid}/"}
+    rec["metadata"] = {"cid": cid, "uploaded_at": datetime.now(timezone.utc).isoformat(), "base_uri": f"ipfs://{cid}/",
+                       "starting_index": args.starting_index}
     save_record(rec)
-    print(f"Metadata pinned. METADATA_CID = {cid}\nContract BASE_URI = ipfs://{cid}/\nNext: python ipfs_upload.py verify")
+    print(f"Metadata pinned. METADATA_CID = {cid}\nOwner then calls reveal(\"ipfs://{cid}/\")\nNext: python ipfs_upload.py verify")
+
+
+def cmd_hidden(args):
+    """Mystery image + metadata shown for every token until reveal."""
+    jwt = os.environ.get("PINATA_JWT") or sys.exit("Set PINATA_JWT first.")
+    src = ROOT.parent / "brand" / "reveal" / "hidden.png"
+    if not src.exists():
+        sys.exit("brand/reveal/hidden.png missing (run: node brand/build_graphics.js)")
+    img_dir = IPFS_DIR / "hidden_image"
+    img_dir.mkdir(parents=True, exist_ok=True)
+    (img_dir / "hidden.png").write_bytes(src.read_bytes())
+    img_cid = pin_folder(img_dir, "little-oddities-hidden-image", jwt)
+    meta_dir = IPFS_DIR / "hidden_meta"
+    meta_dir.mkdir(parents=True, exist_ok=True)
+    (meta_dir / "hidden.json").write_text(json.dumps({
+        "name": "Little Oddities (unrevealed)",
+        "description": "A Little Oddity is waiting to wake up. Every token is revealed together after the mint, using on-chain "
+                       "randomness, so no one (not even the team) knows in advance which character each token becomes.",
+        "image": f"ipfs://{img_cid}/hidden.png",
+        "attributes": [{"trait_type": "Status", "value": "Unrevealed"}]}, indent=2))
+    meta_cid = pin_folder(meta_dir, "little-oddities-hidden-metadata", jwt)
+    rec = load_record()
+    rec["hidden"] = {"image_cid": img_cid, "metadata_cid": meta_cid, "unrevealed_uri": f"ipfs://{meta_cid}/hidden.json",
+                     "uploaded_at": datetime.now(timezone.utc).isoformat()}
+    save_record(rec)
+    print(f"UNREVEALED_URI = ipfs://{meta_cid}/hidden.json  (put this in contracts/.env before deploying)")
 
 
 def cmd_verify(args):
@@ -141,11 +186,12 @@ def cmd_verify(args):
     bad = []
     for i in ids:
         try:
+            c = character_for(i, rec["metadata"]["starting_index"])
             m = requests.get(f"{GATEWAY}{rec['metadata']['cid']}/{i}.json", timeout=60).json()
-            if m["image"] != f"ipfs://{rec['images']['cid']}/{i}.png":
-                bad.append(f"{i}: metadata image link wrong")
-            img = requests.get(f"{GATEWAY}{rec['images']['cid']}/{i}.png", timeout=120)
-            if img.status_code != 200 or hashlib.sha256(img.content).hexdigest() != sha256(COL / "images" / f"{i}.png"):
+            if m["image"] != f"ipfs://{rec['images']['cid']}/{c}.png" or f"#{i}:" not in m["name"]:
+                bad.append(f"{i}: metadata image link or name wrong")
+            img = requests.get(f"{GATEWAY}{rec['images']['cid']}/{c}.png", timeout=120)
+            if img.status_code != 200 or hashlib.sha256(img.content).hexdigest() != sha256(COL / "images" / f"{c}.png"):
                 bad.append(f"{i}: image missing or differs from local file")
         except Exception as e:  # noqa: BLE001 - report every failure honestly
             bad.append(f"{i}: {e}")
@@ -160,7 +206,8 @@ def cmd_verify(args):
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("command", choices=["check", "images", "metadata", "verify"])
+    ap.add_argument("command", choices=["check", "hidden", "images", "metadata", "verify"])
+    ap.add_argument("--starting-index", type=int, default=None, help="from the contract after finalizeReveal")
     ap.add_argument("--all", action="store_true", help="verify every token (slow)")
     ap.add_argument("--force-test", action="store_true", help="TEST uploads only: skip pre-flight")
     args = ap.parse_args()
@@ -168,7 +215,7 @@ def main():
         probs = check()
         print("Ready to upload." if not probs else "Not ready:\n  " + "\n  ".join(probs[:40]))
         sys.exit(1 if probs else 0)
-    {"images": cmd_images, "metadata": cmd_metadata, "verify": cmd_verify}[args.command](args)
+    {"hidden": cmd_hidden, "images": cmd_images, "metadata": cmd_metadata, "verify": cmd_verify}[args.command](args)
 
 
 if __name__ == "__main__":

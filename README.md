@@ -5,7 +5,7 @@
 This repository contains everything for the Little Oddities NFT project: the art generator, the
 Ethereum smart contract, the website + community platform, the brand kit and all documentation.
 
-> **Status (honest):** in development. Target public launch: **November 1, 2027**.
+> **Status (honest):** in development. Target public launch: **November 3, 2027**.
 > Final artwork is being commissioned (placeholders are used for testing and are labelled as such).
 > The smart contract is written and tested but **not independently audited** and **not deployed** anywhere public.
 

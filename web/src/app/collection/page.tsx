@@ -1,7 +1,7 @@
 import Link from "next/link";
 import OddityArt from "@/components/OddityArt";
 import TierBadge from "@/components/TierBadge";
-import { collection, search } from "@/lib/collection";
+import { collection, isRevealed, label, search } from "@/lib/collection";
 import { tiers, site } from "@/lib/site";
 
 export const metadata = { title: "Collection" };
@@ -21,6 +21,13 @@ export default async function CollectionPage({ searchParams }: { searchParams: S
     <div className="mx-auto max-w-7xl px-4 py-10">
       <p className="font-hand text-2xl text-tomato">10,000 wonderfully weird</p>
       <h1 className="font-display font-black text-5xl">The Collection</h1>
+      {!isRevealed() && (
+        <p className="mt-4 card p-4 bg-lilac/40 text-sm">
+          <strong>Character preview.</strong> These are all 10,000 planned characters. Which token number becomes which character is
+          decided at the reveal by on-chain randomness that no one — including the team — can predict. After the reveal this page
+          switches to token numbers.
+        </p>
+      )}
       {!site.imagesBase && (
         <p className="mt-4 card p-4 bg-butter/40 text-sm">
           <strong>Artwork in progress.</strong> The final hand-drawn artwork is being created. Names, rarities and traits below come from the
@@ -29,7 +36,7 @@ export default async function CollectionPage({ searchParams }: { searchParams: S
       )}
 
       <form className="mt-6 flex flex-wrap gap-2" action="/collection">
-        <input name="q" defaultValue={sp.q} placeholder="Search by #ID, name or trait…" className="input max-w-sm" />
+        <input name="q" defaultValue={sp.q} placeholder={isRevealed() ? "Search by #ID, name or trait…" : "Search by number, name or trait…"} className="input max-w-sm" />
         {sp.tier && <input type="hidden" name="tier" value={sp.tier} />}
         {sp.trait && <input type="hidden" name="trait" value={sp.trait} />}
         <select name="sort" defaultValue={sp.sort || "id"} className="input max-w-44">
@@ -70,9 +77,9 @@ export default async function CollectionPage({ searchParams }: { searchParams: S
           <div className="mt-3 grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-4">
             {res.items.map((t) => (
               <Link key={t.id} href={`/collection/${t.id}`} className="card overflow-hidden hover:-translate-y-1 transition">
-                <OddityArt id={t.id} species={t.traits.Species} tier={t.tier} />
+                <OddityArt character={t.character} species={t.traits.Species} tier={t.tier} />
                 <div className="p-3 border-t-3 border-ink">
-                  <div className="flex justify-between items-center gap-2"><span className="font-bold">#{t.id}</span><TierBadge tier={t.tier} /></div>
+                  <div className="flex justify-between items-center gap-2"><span className="font-bold">{label(t.id)}</span><TierBadge tier={t.tier} /></div>
                   <div className="text-sm truncate mt-1">{t.name}</div>
                 </div>
               </Link>

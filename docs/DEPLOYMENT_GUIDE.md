@@ -16,7 +16,7 @@ needs the *deployer* key, kept in `contracts/.env` on your own computer.
 1. Get Sepolia ETH for the deployer from a faucet (e.g. the Alchemy or Google Cloud Sepolia faucet).
 2. `cd contracts && cp .env.example .env` and fill in:
    `SEPOLIA_RPC_URL`, `DEPLOYER_PRIVATE_KEY` (deployer only!), `ETHERSCAN_API_KEY`, `OWNER_ADDRESS` (your public owner address),
-   `BASE_URI` (can stay a placeholder on Sepolia), `CONTRACT_URI`, `WALLET_LIMIT`, `ROYALTY_BPS`.
+   `UNREVEALED_URI` (mystery metadata — can stay a placeholder on Sepolia; on mainnet use `python3 art/ipfs_upload.py hidden`), `CONTRACT_URI`, `WALLET_LIMIT`=10, `ROYALTY_BPS`=500.
 3. `npx hardhat test` → must show 27 passing.
 4. `npm run deploy:sepolia` → prints the address and saves `deployments/sepolia.json`.
 5. Verify the source: copy the `npx hardhat verify ...` command it prints and run it.
@@ -30,13 +30,15 @@ approved in writing. The deploy script refuses mainnet unless you run:
 ```bash
 CONFIRM_MAINNET_DEPLOY=I_APPROVE_MAINNET npm run deploy:mainnet
 ```
-It also refuses if `BASE_URI` still contains a placeholder CID.
+It also refuses if `UNREVEALED_URI` still contains a placeholder CID.
 Expected cost: deploy ≈ 2.38M gas (≈ 0.012 ETH at 5 gwei, 0.048 ETH at 20 gwei).
 
 ## Step 3 — After deployment (owner wallet, from the admin dashboard)
-1. Verify on Etherscan. 2. Mint the 500 reserve (when gas is low; ≈12.6M gas). 3. Set allowlist root.
-4. Freeze metadata once you are 100% sure it's final (optional, irreversible). 5. Set up OpenSea (OPENSEA_GUIDE).
+1. Verify on Etherscan. 2. **Set the provenance hash** (before ANY mint — it locks at the first mint).
+3. Mint the 500 reserve to your wallet (when gas is low; ≈12.6M gas). 4. Set allowlist root. 5. Set up OpenSea (OPENSEA_GUIDE).
 6. Open allowlist / public mint only at the announced time.
+7. Reveal (admin → Mint settings → Delayed reveal): Commit → Finalize → build metadata with the starting index → Reveal.
+8. Freeze metadata once you are 100% sure it's final (optional, irreversible).
 
 ## Website hosting (Vercel recommended)
 1. Push the repo to *your* GitHub. 2. On vercel.com, "Add New Project" → import repo → Root Directory `web`.

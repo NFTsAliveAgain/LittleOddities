@@ -9,7 +9,7 @@ export const site = {
   reserved: 500,
   maxPerTx: 4,
   mintPriceEth: "0.005", // display only — the contract is the source of truth
-  launchIso: process.env.NEXT_PUBLIC_LAUNCH_ISO || "2027-11-01T12:00:00-04:00",
+  launchIso: process.env.NEXT_PUBLIC_LAUNCH_ISO || "2027-11-03T12:00:00-04:00",
   launchTz: process.env.NEXT_PUBLIC_LAUNCH_TZ || "America/New_York",
   chain: (process.env.NEXT_PUBLIC_CHAIN || "sepolia") as "sepolia" | "mainnet" | "localhost",
   contractAddress: (process.env.NEXT_PUBLIC_CONTRACT_ADDRESS || "") as `0x${string}` | "",

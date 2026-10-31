@@ -1,7 +1,7 @@
-# November 1, 2027 Launch Plan
+# November 3, 2027 Launch Plan
 
-Target: **public launch Monday, November 1, 2027, 12:00 PM America/New_York (EDT, UTC−4)**.
-(Daylight saving ends Nov 7, 2027, so Nov 1 is still EDT.) The time is configurable in
+Target: **public launch Wednesday, November 3, 2027, 12:00 PM America/New_York (EDT, UTC−4)**.
+(Daylight saving ends Nov 7, 2027, so Nov 3 is still EDT.) The time is configurable in
 `web/.env` → `NEXT_PUBLIC_LAUNCH_ISO` / `NEXT_PUBLIC_LAUNCH_TZ`.
 
 **The calendar never overrides safety.** If any critical security, metadata, payment or ownership
@@ -28,9 +28,10 @@ Production layers must be delivered by **end of March 2027** to keep the schedul
 | Jul–Aug 2027 | Open community channels; publish story; character introductions; roadmap announcement; allowlist criteria | Founder | Channels live |
 | Sep 2027 | **Independent contract review**; fix findings; final art QA; verify supply + metadata | Reviewer + Claude | Review report, all critical/high fixed |
 | Oct 1–15, 2027 | Final IPFS upload of real art; verify all 10,000; final contract review | Claude | Verified |
-| Oct 15–25, 2027 | **Mainnet deployment (only with explicit founder approval)**; Etherscan verification; OpenSea setup; reserve mint; allowlist root set | Founder signs | Contract verified |
+| Oct 15–25, 2027 | **Mainnet deployment (only with explicit founder approval)**; Etherscan verification; **provenance hash set + published**; OpenSea setup; reserve mint to founder wallet; allowlist root set | Founder signs | Contract verified |
 | Oct 25–31, 2027 | Mint simulation on Sepolia with the final build; mobile + desktop wallet tests; countdown posts | All | Launch checklist green |
-| **Nov 1, 2027** | Allowlist window opens (proposed), then public mint (when authorized by founder) | Founder | Mint live |
+| **Nov 3, 2027** | Allowlist window opens (proposed), then public mint (when authorized by founder) | Founder | Mint live |
+| Sell-out or Nov 5, 2027 (proposed) | **Reveal**: commit → finalize → per-token metadata upload → reveal; gallery switches to token numbers | Founder + Claude | Tokens revealed, spot-checked |
 
 ## Testing calendar
 | Date | Test |
@@ -41,7 +42,7 @@ Production layers must be delivered by **end of March 2027** to keep the schedul
 | Sep 2027 | Independent review; re-test after every fix |
 | Oct 2027 | Full rehearsal on Sepolia with final metadata; load test of website |
 
-## Launch-day run sheet (Nov 1, 2027, New York time)
+## Launch-day run sheet (Nov 3, 2027, New York time)
 | Time | Action |
 |---|---|
 | 08:00 | Final go/no-go meeting using LAUNCH_CHECKLIST.md |

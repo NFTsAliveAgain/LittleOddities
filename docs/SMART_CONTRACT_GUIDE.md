@@ -24,8 +24,13 @@ Solidity 0.8.28 · Tests: `contracts/test/LittleOddities.test.js` (27 passing)
 | `setAllowlistActive(bool)` | Open/close allowlist mint | closed |
 | `setPublicActive(bool)` | Open/close public mint | closed |
 | `mintReserve()` | Mint the 500 reserved NFTs to the owner wallet (once) | — |
-| `setBaseURI(uri)` | Metadata location (`ipfs://CID/`) | from deploy |
-| `freezeMetadata()` | Permanently lock metadata (irreversible) | not frozen |
+| `setProvenanceHash(hash)` | Publish the image fingerprint — **only before the first mint** | empty |
+| `setUnrevealedURI(uri)` | Mystery metadata shown before reveal | from deploy |
+| `commitReveal()` | Reveal step 1: choose the next block as randomness source | — |
+| `finalizeReveal()` | Reveal step 2 — **anyone** may call; sets `startingIndex` | — |
+| `reveal(baseURI)` | Reveal step 3: point tokens at final metadata (once) | — |
+| `setBaseURI(uri)` | Fix final metadata location — only after reveal, until frozen | — |
+| `freezeMetadata()` | Permanently lock metadata (irreversible; after reveal) | not frozen |
 | `setContractURI(uri)` | Collection-level info for marketplaces | from deploy |
 | `setRoyalty(addr, bps)` | ERC-2981 royalty (≤ 10%) | 5% to owner (proposed) |
 | `withdraw()` | Send all mint ETH to the owner wallet | — |
@@ -61,13 +66,23 @@ Build prints the Merkle root (paste into the admin dashboard → Mint settings �
 | Withdraw | ~34,600 | tiny | tiny |
 Cost = gas × gas price. Check https://etherscan.io/gastracker before any mainnet action.
 
+## Delayed reveal (founder decision, Oct 31, 2026)
+Chosen to stop "rarity sniping" (the original brief asked for instant reveal; the founder changed this).
+1. **Provenance** — `python3 art/provenance.py` → SHA-256 of all image hashes in planned order. Owner
+   publishes it with `setProvenanceHash` before minting; it locks automatically at the first mint.
+2. **Mint** — every token's `tokenURI` returns the mystery metadata (`brand/reveal/hidden.png`).
+3. **Randomness** — owner `commitReveal()` fixes a *future* block; ~12 s later anyone calls
+   `finalizeReveal()`, which hashes that block's hash + `prevrandao` → `startingIndex` (1–9,999).
+   Must be finalized within 256 blocks (~50 min) or the owner simply commits again.
+4. **Mapping** — token N shows planned character `((N − 1 + startingIndex) % 10000) + 1` (`characterOf(N)` on-chain).
+5. **Reveal** — `python3 art/ipfs_upload.py metadata --starting-index N` builds per-token metadata; owner calls `reveal("ipfs://<CID>/")`.
+**When to reveal:** proposed at sell-out or 48 hours after public mint opens, whichever comes first — announce it in advance.
+**Randomness strength:** a block proposer could in theory withhold a block to re-roll; for an NFT reveal this is
+considered acceptable and is widely used. Chainlink VRF is the stronger (paid) alternative if ever needed.
+**Verification for collectors:** recompute the provenance hash from the IPFS images, read `startingIndex`, apply the formula.
+
 ## Known trade-offs (please read)
-1. **Instant reveal + sequential IDs = predictable next token.** Because metadata is public, someone
-   can see which token ID mints next and time a mint for a Legendary. Limits (4/tx, wallet limit)
-   reduce but don't eliminate this. Options: (a) accept and disclose; (b) shuffle which planned
-   character gets which ID only at final generation (already random, still visible once uploaded);
-   (c) commit-reveal randomized start index (this is a delayed reveal — conflicts with the brief).
-   **Recommendation:** (a) with clear disclosure. Founder decides.
+1. **Unrevealed period:** holders see a mystery image until the reveal; be clear about the reveal timing.
 2. **Royalties are not enforced** by marketplaces; ERC-2981 is only a signal.
 3. **Reserve mint is one big transaction** (~12.6M gas). Do it when gas is low, before public mint.
 

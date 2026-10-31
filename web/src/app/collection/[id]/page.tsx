@@ -2,13 +2,13 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import OddityArt from "@/components/OddityArt";
 import TierBadge from "@/components/TierBadge";
-import { collection, token } from "@/lib/collection";
+import { collection, isRevealed, label, token } from "@/lib/collection";
 import { openseaItem, site } from "@/lib/site";
 
 type P = Promise<{ id: string }>;
 export async function generateMetadata({ params }: { params: P }) {
   const t = token(Number((await params).id));
-  return { title: t ? `#${t.id} ${t.name}` : "Not found" };
+  return { title: t ? `${label(t.id)} ${t.name}` : "Not found" };
 }
 
 export default async function TokenPage({ params }: { params: P }) {
@@ -20,9 +20,9 @@ export default async function TokenPage({ params }: { params: P }) {
     <div className="mx-auto max-w-6xl px-4 py-10">
       <Link href="/collection" className="text-sm underline">← Back to collection</Link>
       <div className="mt-4 grid md:grid-cols-2 gap-8">
-        <div className="card overflow-hidden"><OddityArt id={t.id} species={t.traits.Species} tier={t.tier} /></div>
+        <div className="card overflow-hidden"><OddityArt character={t.character} species={t.traits.Species} tier={t.tier} /></div>
         <div>
-          <p className="font-bold opacity-60">Little Oddities #{t.id}</p>
+          <p className="font-bold opacity-60">{isRevealed() ? `Little Oddities #${t.id} · character ${t.character}` : `Planned character ${t.id} · token number decided at reveal`}</p>
           <h1 className="font-display font-black text-5xl">{t.name}</h1>
           <div className="mt-3"><TierBadge tier={t.tier} /></div>
           <table className="mt-6 w-full card overflow-hidden">
@@ -40,15 +40,15 @@ export default async function TokenPage({ params }: { params: P }) {
             </tbody>
           </table>
           <div className="mt-6 flex flex-wrap gap-3">
-            {openseaItem(t.id) && <a className="btn bg-sky" href={openseaItem(t.id)} target="_blank" rel="noopener noreferrer">View on OpenSea</a>}
+            {isRevealed() && openseaItem(t.id) && <a className="btn bg-sky" href={openseaItem(t.id)} target="_blank" rel="noopener noreferrer">View on OpenSea</a>}
             <Link className="btn bg-butter" href="/mint">Mint</Link>
           </div>
           {!site.imagesBase && <p className="mt-4 text-sm opacity-70">Artwork in progress — the final image will appear here once the art is complete and uploaded.</p>}
         </div>
       </div>
       <div className="mt-8 flex justify-between">
-        {id > 1 ? <Link className="btn bg-white" href={`/collection/${id - 1}`}>← #{id - 1}</Link> : <span />}
-        {id < 10000 && <Link className="btn bg-white" href={`/collection/${id + 1}`}>#{id + 1} →</Link>}
+        {id > 1 ? <Link className="btn bg-white" href={`/collection/${id - 1}`}>← {label(id - 1)}</Link> : <span />}
+        {id < 10000 && <Link className="btn bg-white" href={`/collection/${id + 1}`}>{label(id + 1)} →</Link>}
       </div>
     </div>
   );

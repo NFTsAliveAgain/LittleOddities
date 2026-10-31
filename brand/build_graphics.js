@@ -26,12 +26,17 @@ const pages = {
   "social/og-1200x630.png": [1200, 630, `<div class="night grain" style="position:relative;width:1200px;height:630px;overflow:hidden">${blobs(4)}
      <div style="position:absolute;left:80px;top:90px">${naa.replace("<svg", '<svg style="width:520px;height:auto"')}</div>
      <div style="position:absolute;left:80px;top:185px;transform:rotate(-2deg)">${sticker(lo, 470)}</div>
-     <p class="disp" style="position:absolute;left:80px;bottom:44px;font-size:30px">10,000 characters · 0.005 ETH · Nov 1, 2027</p></div>`],
+     <p class="disp" style="position:absolute;left:80px;bottom:44px;font-size:30px">10,000 characters · 0.005 ETH · Nov 3, 2027</p></div>`],
   "social/profile-400x400.png": [400, 400, `<div style="width:400px;height:400px;background:#ffd86b;display:grid;place-items:center">${mark.replace("<svg", '<svg style="width:300px;height:300px"')}</div>`],
   "social/profile-night-400x400.png": [400, 400, `<div class="night" style="width:400px;height:400px;display:grid;place-items:center">${mark.replace("<svg", '<svg style="width:300px;height:300px"')}</div>`],
   "favicon/icon-512.png": [512, 512, `<div style="width:512px;height:512px">${read("favicon/favicon.svg").replace("<svg", '<svg style="width:512px;height:512px"')}</div>`],
   "favicon/apple-touch-icon-180.png": [180, 180, `<div style="width:180px;height:180px">${read("favicon/favicon.svg").replace("<svg", '<svg style="width:180px;height:180px"')}</div>`],
   "favicon/icon-32.png": [32, 32, `<div style="width:32px;height:32px">${read("favicon/favicon.svg").replace("<svg", '<svg style="width:32px;height:32px"')}</div>`],
+  "reveal/hidden.png": [1024, 1024, `<div class="night grain" style="position:relative;width:1024px;height:1024px;overflow:hidden"><div class="blob" style="background:#f59ac5;left:60px;top:70px;width:110px;height:110px"></div><div class="blob" style="background:#8ee3b0;left:880px;top:110px;width:80px;height:80px"></div><div class="blob" style="background:#ffd86b;left:80px;top:820px;width:70px;height:70px"></div><div class="blob" style="background:#7cc8ff;left:900px;top:760px;width:90px;height:90px"></div><div class="blob" style="background:#c9b8f2;left:820px;top:560px;width:50px;height:50px"></div>
+     <div style="position:absolute;left:50%;top:44%;transform:translate(-50%,-50%);width:520px;height:520px;border-radius:50%;background:#c9b8f2;border:12px solid #1e1a2e;box-shadow:16px 16px 0 #1e1a2e;display:grid;place-items:center">
+       <span class="disp" style="font-size:340px;line-height:1;color:#1e1a2e">?</span></div>
+     <p class="hand" style="position:absolute;width:100%;text-align:center;top:780px;font-size:70px;color:#ffd86b">Waking up soon…</p>
+     <p class="disp" style="position:absolute;width:100%;text-align:center;top:880px;font-size:44px">Little Oddities</p></div>`],
   "palette/palette.png": [1200, 420, `<div style="width:1200px;height:420px;background:#fbf5ea;padding:40px"><p class="disp" style="font-size:40px">NFTs Alive Again — palette</p>
      <div style="display:flex;gap:16px;margin-top:30px">${[["Ink", "#1e1a2e"], ["Night", "#141a2e"], ["Cream", "#fbf5ea"], ["Pink", "#f59ac5"], ["Mint", "#8ee3b0"],
        ["Lilac", "#c9b8f2"], ["Sky", "#7cc8ff"], ["Butter", "#ffd86b"], ["Tomato", "#ff6b4a"], ["Moss", "#5dbb4a"]].map(([n, c]) =>
